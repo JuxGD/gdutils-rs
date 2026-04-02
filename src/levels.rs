@@ -1,9 +1,12 @@
+use crate::constants::URL;
+use crate::constants::SECRET_COMMON;
+
 pub async fn get_timely(weekly: String) -> String {
-    let url = "http://www.boomlings.com/database/getGJDailyLevel.php";
+    let url = format!("{}/getGJDailyLevel.php", URL);
 
     let weekly = weekly.to_string();
 
-    let form = [("secret", "Wmfd2893gb7"), ("weekly", &weekly)];
+    let form = [("secret", format!("{}", SECRET_COMMON)), ("weekly", weekly)];
 
     let client = reqwest::Client::new();
 
