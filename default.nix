@@ -2,9 +2,6 @@
   stdenv
 , lib
 , rustPlatform
-, fetchFromGitHub
-, openssl
-, pkg-config
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
