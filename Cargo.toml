@@ -8,3 +8,7 @@ description = "Fetch Geometry Dash data easily"
 
 [dependencies]
 reqwest = { version = "0.13.2", features = ["form"]}
+rand = "0.10.0"
+xor_cryptor = { path = "/home/j/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xor_cryptor-2.0.4"}
+base64 = "0.22.1"
+rust-string-random = "0.1.0"
