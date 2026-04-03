@@ -1,5 +1,5 @@
 use rand::random_range;
-use xor_cryptor::XORCryptor;
+use xor_cryptor_keylen::XORCryptor;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 use rust_string_random::{random as random_string, Options, RandWay};
 
