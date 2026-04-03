@@ -111,6 +111,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "colonparse"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99c4e9938160c027cf4e2ca441de6121393c99d5b49664aee0c443da75dbf8ae"
+
+[[package]]
 name = "combine"
 version = "4.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -295,6 +301,7 @@ name = "gdutils"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "colonparse",
  "rand 0.10.0",
  "reqwest",
  "rust-string-random",

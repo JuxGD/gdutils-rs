@@ -12,4 +12,4 @@ rand = "0.10.0"
 xor_cryptor_keylen = { git = "https://github.com/JuxGD/xor_cryptor_keylen", tag = "v2.0.41" }
 base64 = "0.22.1"
 rust-string-random = "0.1.0"
-colonparse = { path = "../colonparse" }
+colonparse = "0.1.0"
