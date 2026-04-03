@@ -2119,7 +2119,7 @@ checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
 [[package]]
 name = "xor_cryptor_keylen"
 version = "2.0.4"
-source = "git+https://github.com/JuxGD/xor_cryptor_keylen#e60c69640f2e4f739662600af325076064d09c3e"
+source = "git+https://github.com/JuxGD/xor_cryptor_keylen?tag=v2.0.41#e60c69640f2e4f739662600af325076064d09c3e"
 dependencies = [
  "rand 0.8.5",
  "rand_chacha 0.3.1",
