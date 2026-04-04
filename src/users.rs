@@ -4,16 +4,16 @@ use crate::{constants::*, levels::Level};
 use std::fmt::{Debug};
 
 #[derive(Debug)]
-struct User {
-    username: String
-,   stars: i32
-,   moons: i32
-,   diamonds: i32
-,   usercoins: i32
-,   secretcoins: i32
-,   demons: i32
-,   top: i32
-,   ctpoints: i32
+pub struct User {
+    pub username: String
+,   pub stars: i32
+,   pub moons: i32
+,   pub diamonds: i32
+,   pub usercoins: i32
+,   pub secretcoins: i32
+,   pub demons: i32
+,   pub top: i32
+,   pub ctpoints: i32
 }
 
 // Gets user data from playerID
