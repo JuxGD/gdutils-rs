@@ -1,6 +1,6 @@
 use colonparse::hashmap_from;
 
-use crate::{constants::*, levels::Level};
+use crate::{constants::*};
 use std::fmt::{Debug};
 
 #[derive(Debug)]
@@ -39,7 +39,7 @@ pub async fn get_user(id: &str) -> User {
 
     let user = User {
         username: String::from(user_hashmap.get("1").unwrap())
-    ,   stars: user_hashmap["1"].parse::<i32>().unwrap()
+    ,   stars: user_hashmap["3"].parse::<i32>().unwrap()
     ,   moons: user_hashmap["52"].parse::<i32>().unwrap()
     ,   diamonds: user_hashmap["46"].parse::<i32>().unwrap()
     ,   usercoins: user_hashmap["17"].parse::<i32>().unwrap()
