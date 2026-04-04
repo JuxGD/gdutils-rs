@@ -26,6 +26,7 @@ pub async fn get_user(id: &str) -> User {
 
     let request = String::from(client.post(url)
         .form(&form)
+        .header("User_Agent", "")
         .send()
         .await
         .unwrap()
