@@ -13,3 +13,4 @@ xor_cryptor_keylen = { git = "https://github.com/JuxGD/xor_cryptor_keylen", tag 
 base64 = "0.22.1"
 rust-string-random = "0.1.0"
 colonparse = "0.1.0"
+tokio = { version = "1.51.0", features = ["full"] }

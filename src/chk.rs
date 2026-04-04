@@ -16,12 +16,12 @@ pub fn generate(player_id: f32, key: String) -> String {
         Ok(enc) => enc,
         Err(e) => {
             println!("Error: {}", e);
-            return "1".to_string();
+            return String::from("1");
         }
     };
 
     let encrypted_string = String::from_utf8_lossy(&encrypted_buffer);
-    let base64_encrypted_string = URL_SAFE.encode(encrypted_string.to_string().as_bytes());
+    let base64_encrypted_string = URL_SAFE.encode(String::from(encrypted_string).as_bytes());
 
     let rand_str_options = Options {
         rand: RandWay::NORMAL,
