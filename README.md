@@ -10,7 +10,7 @@ Originally made for the FluxDash bot for Fluxer.
 
 Current (or future) crate features:
 
-- [ ] Getting arbitrary level data (`gd!level`)
+- [ ] Getting arbitrary level data (`get_level()`)
   - [X] Name
   - [X] ID
   - [ ] Author
@@ -21,21 +21,23 @@ Current (or future) crate features:
   - [ ] Moons
   - [X] Likes
   - [X] Downloads
-- [X] Getting daily, weekly level indes & time left (`gd!daily`, `gd!weekly`) 
-- [X] Getting event level index (`gd!index`)
-- [ ] Getting arbitrary user data (`gd!user`)
-  - [ ] Username
-  - [ ] Account ID
-  - [ ] Player ID
-  - [ ] Leaderboard placement
-  - [ ] Stars & Moons
-    - [ ] Amount of each difficulty beaten
-  - [ ] Diamonds
-  - [ ] Demons
+- [X] Getting daily, weekly level indes & time left (`get_daily()`, `get_weekly()`) 
+- [X] Getting event level index (`get_event()`)
+- [X] Getting arbitrary user data (`gd_user()`)
+  - [X] Username
+  - [X] Account ID
+  - [x] Player ID
+  - [X] Leaderboard placement
+  - [X] Stars & Moons
+    - [ ] Amount of levels of each difficulty beaten
+  - [X] User Coins
+  - [X] Secret Coins
+  - [X] Diamonds
+  - [X] Demons
     - [ ] Amount of each demon difficulty beaten
-  - [ ] Creator Points
-  - [ ] Icons (as data not the actual icons ofc)
-- [ ] Generating icons from icon data
+  - [X] Creator Points
+  - [X] Icons (as data not the actual icons ofc)
+- [X] Generating icons from icon data
 
 ## AI, Agents, LLMs
 

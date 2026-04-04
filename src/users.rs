@@ -9,6 +9,8 @@ struct User {
 ,   stars: i32
 ,   moons: i32
 ,   diamonds: i32
+,   usercoins: i32
+,   secretcoins: i32
 ,   demons: i32
 ,   top: i32
 ,   ctpoints: i32
@@ -39,6 +41,8 @@ pub async fn get_user(id: &str) -> User {
     ,   stars: user_hashmap["1"].parse::<i32>().unwrap()
     ,   moons: user_hashmap["52"].parse::<i32>().unwrap()
     ,   diamonds: user_hashmap["46"].parse::<i32>().unwrap()
+    ,   usercoins: user_hashmap["17"].parse::<i32>().unwrap()
+    ,   secretcoins: user_hashmap["13"].parse::<i32>().unwrap()
     ,   demons: user_hashmap["4"].parse::<i32>().unwrap()
     ,   top: user_hashmap["6"].parse::<i32>().unwrap()
     ,   ctpoints: user_hashmap["8"].parse::<i32>().unwrap()
