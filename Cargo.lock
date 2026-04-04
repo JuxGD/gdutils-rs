@@ -112,9 +112,9 @@ dependencies = [
 
 [[package]]
 name = "colonparse"
-version = "0.1.0"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99c4e9938160c027cf4e2ca441de6121393c99d5b49664aee0c443da75dbf8ae"
+checksum = "e9a99425748ef4151baea9b5819efc32cd999952749526aa173905127b178b97"
 
 [[package]]
 name = "combine"
@@ -231,7 +231,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
