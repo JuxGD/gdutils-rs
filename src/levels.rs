@@ -11,10 +11,11 @@ use crate::chk;
 #[derive(Debug)]
 pub struct Level {
     pub name: String,
-    // author: String,
+    // pub author: String,
     pub id: i32,
     pub song: String,
     pub rating: String,
+    pub quality: String,
     pub stars: i32,
     pub likes: i32,
     pub downloads: i32
@@ -31,7 +32,7 @@ pub struct TimelyLevel {
     time_left: i32,
 }
 
-pub async fn get_level(id: String) -> Level {
+pub async fn get_level(id: &str) -> Level {
     let url = format!("{}/downloadGJLevel22.php", URL_DATABASE);
     
     let client = reqwest::Client::new();
@@ -56,13 +57,20 @@ pub async fn get_level(id: String) -> Level {
     fn calculate_difficulty(level_hashmap: &HashMap<String, String>) -> String {
         let numerator = level_hashmap["9"].parse::<i32>().unwrap();
         let denominator = level_hashmap["8"].parse::<i32>().unwrap();
-
+        
         let demon: bool;
-        if level_hashmap["17"] == "false" {
+
+        if level_hashmap["17"] == "" {
             demon = false;
         } else {
             demon = true;
-        };
+        }
+
+        if level_hashmap["25"] == "" {
+
+        } else {
+            return String::from("Auto");
+        }
 
         let difficulty: String;
 
@@ -94,12 +102,23 @@ pub async fn get_level(id: String) -> Level {
         return difficulty;
     }
 
+    fn calculate_quality(level_hashmap: &HashMap<String, String>) -> String {
+        match level_hashmap.get("42").unwrap().parse::<i32>().unwrap() {
+            0 => return String::from("Rated"),
+            1 => return String::from("Epic"),
+            2 => return String::from("Legendary"),
+            3 => return String::from("Mythic"),
+            _ => return String::from("somethingelse"),
+        }
+    }
+
     let level = Level {
         name: String::from(level_hashmap.get("2").unwrap())
-        // author: level_hashmap["playerID"],
+    //,   author: String::from(level_hashmap.get("6").unwrap())
     ,   song: String::from(level_hashmap.get("35").unwrap())
     ,   id: level_hashmap.get("1").unwrap().parse::<i32>().unwrap()
     ,   rating: calculate_difficulty(&level_hashmap)
+    ,   quality: calculate_quality(&level_hashmap)
     ,   stars: level_hashmap["18"].parse::<i32>().unwrap()
     ,   likes: level_hashmap["14"].parse::<i32>().unwrap()
     ,   downloads: level_hashmap["10"].parse::<i32>().unwrap()

@@ -14,6 +14,8 @@ pub struct User {
 ,   pub demons: i32
 ,   pub top: i32
 ,   pub ctpoints: i32
+,   pub account_id: i32
+,   pub user_id: i32
 }
 
 // Gets user data from playerID
@@ -47,7 +49,9 @@ pub async fn get_user(id: &str) -> User {
     ,   demons: user_hashmap["4"].parse::<i32>().unwrap()
     ,   top: user_hashmap["30"].parse::<i32>().unwrap()
     ,   ctpoints: user_hashmap["8"].parse::<i32>().unwrap()
+    ,   account_id: user_hashmap["16"].parse::<i32>().unwrap()
+    ,   user_id: user_hashmap["2"].parse::<i32>().unwrap()
     };
-
+    
     return user;
 }
