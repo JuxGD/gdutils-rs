@@ -104,7 +104,7 @@ pub async fn get_level(id: &str) -> Level {
 
     fn calculate_quality(level_hashmap: &HashMap<String, String>) -> String {
         match level_hashmap.get("42").unwrap().parse::<i32>().unwrap() {
-            0 => return String::from("Rated"),
+            0 => return String::from("Normal"),
             1 => return String::from("Epic"),
             2 => return String::from("Legendary"),
             3 => return String::from("Mythic"),
