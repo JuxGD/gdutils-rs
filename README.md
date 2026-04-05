@@ -10,20 +10,22 @@ Originally made for the FluxDash bot for Fluxer.
 
 Current (or future) crate features:
 
-- [ ] Getting arbitrary level data (`get_level()`)
+- [ ] Getting arbitrary level info (`get_level_info()`)
   - [X] Name
   - [X] ID
-  - [ ] Author
+  - [X] Author
   - [X] Song ID
   - [ ] Song artist - song name (Newgrounds/Music Library)
-  - [X] Difficulty rating 
-  - [X] Stars
-  - [ ] Moons
+  - [X] Difficulty rating
+  - [X] "Quality" status (normal, featured, epic etc) and feature score (the higher that is, the higher in the featured tab the level is)
+  - [X] Stars/Moons
+  - [X] Coins (and if verified)
   - [X] Likes
   - [X] Downloads
+- [X] Getting arbitrary level (`get_level()`)
 - [X] Getting daily, weekly level indes & time left (`get_daily()`, `get_weekly()`) 
 - [X] Getting event level index (`get_event()`)
-- [X] Getting arbitrary user data (`gd_user()`)
+- [X] Getting arbitrary user info (`get_user_info()`)
   - [X] Username
   - [X] Account ID
   - [x] Player ID
