@@ -138,7 +138,7 @@ pub async fn get_level_info(query: &str) -> LevelInfo {
     let client = reqwest::Client::new();
     let form = vec![("secret", SECRET_COMMON), ("str", query), ("type", "0")];
 
-    let response = client.post(url)
+    let response = client.post(&url)
         .form(&form)
         .header("User_Agent", "")
         .send()
@@ -171,10 +171,23 @@ pub async fn get_level_info(query: &str) -> LevelInfo {
     let split_response = response.split("#").collect::<Vec<&str>>();
 
     let level_list = split_response[0].split("|").collect::<Vec<&str>>();
-
     let level_hashmap = hashmap_from(String::from(level_list[0]));
+
     let author_list = split_response[1].split("|").collect::<Vec<&str>>();
-    let author = author_list[0].split(":").collect::<Vec<&str>>();
+    let mut new_author_list: Vec<&str> = Vec::new();
+    for n in 0..level_list.len() {
+        let level_hashmap = hashmap_from(String::from(level_list[n]));
+        let player_id = String::from(level_hashmap.get("6").unwrap());
+        
+        for author in &author_list {
+            let author_player_id = author.split(":").collect::<Vec<&str>>()[0];
+            if author_player_id == player_id {
+                new_author_list.push(author);
+            }
+        }
+    };
+
+    let author = new_author_list[0].split(":").collect::<Vec<&str>>();
 
     let level_info = LevelInfo {
         name: String::from(level_hashmap.get("2").unwrap())

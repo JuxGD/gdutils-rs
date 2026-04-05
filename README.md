@@ -10,7 +10,7 @@ Originally made for the FluxDash bot for Fluxer.
 
 Current (or future) crate features:
 
-- [ ] Getting arbitrary level info (`get_level_info()`)
+- [X] Getting arbitrary level info (`get_level_info()`)
   - [X] Name
   - [X] ID
   - [X] Author
@@ -22,9 +22,8 @@ Current (or future) crate features:
   - [X] Coins (and if verified)
   - [X] Likes
   - [X] Downloads
-- [X] Getting arbitrary level (`get_level()`)
-- [X] Getting daily, weekly level indes & time left (`get_daily()`, `get_weekly()`) 
-- [X] Getting event level index (`get_event()`)
+- [X] Getting arbitrary level info (`get_level_info()`)
+- [X] Getting timely level data (eg daily level index, time left, level itself info) (`get_daily()`, `get_weekly()`, `get_event()`)
 - [X] Getting arbitrary user info (`get_user_info()`)
   - [X] Username
   - [X] Account ID
@@ -39,7 +38,8 @@ Current (or future) crate features:
     - [ ] Amount of each demon difficulty beaten
   - [X] Creator Points
   - [X] Icons (as data not the actual icons ofc)
-- [X] Generating icons from icon data
+- [ ] Generating icons from icon data
+- [X] Getting level string (`download_level()`)
 
 ## AI, Agents, LLMs
 
