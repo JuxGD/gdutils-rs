@@ -45,7 +45,7 @@ pub async fn get_user(id: &str) -> User {
     ,   usercoins: user_hashmap["17"].parse::<i32>().unwrap()
     ,   secretcoins: user_hashmap["13"].parse::<i32>().unwrap()
     ,   demons: user_hashmap["4"].parse::<i32>().unwrap()
-    ,   top: user_hashmap["6"].parse::<i32>().unwrap()
+    ,   top: user_hashmap["30"].parse::<i32>().unwrap()
     ,   ctpoints: user_hashmap["8"].parse::<i32>().unwrap()
     };
 
