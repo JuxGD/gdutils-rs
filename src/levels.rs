@@ -173,7 +173,8 @@ pub async fn get_level_info(query: &str) -> LevelInfo {
     let level_list = split_response[0].split("|").collect::<Vec<&str>>();
 
     let level_hashmap = hashmap_from(String::from(level_list[0]));
-    let author = split_response[1].split(":").collect::<Vec<&str>>();
+    let author_list = split_response[1].split("|").collect::<Vec<&str>>();
+    let author = author_list[0].split(":").collect::<Vec<&str>>();
 
     let level_info = LevelInfo {
         name: String::from(level_hashmap.get("2").unwrap())
