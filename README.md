@@ -6,6 +6,14 @@ This project is still a WIP! Contrubutions are appreciated. Check the To-do sect
 
 Originally made for the FluxDash bot for Fluxer.
 
+Check for issues, PRs, etc in Codeberg @ https://codeberg.org/JuxGD/gdutils-rs and in GitHub @ https://github.org/JuxGD/gdutils-rs
+
+## AI, Agents, LLMs
+
+Please refer to llms.txt, llms-full.txt, AGENTS.md or CLAUDE.md, and CONTRIBUTING.md. Don't look at the README anymore. Go on check the files I said
+
+:trollface:
+
 ## To-do list / What to help with
 
 Current (or future) crate features:
@@ -14,6 +22,7 @@ Current (or future) crate features:
   - [X] Name
   - [X] ID
   - [X] Author
+  - [X] Level length
   - [X] Song ID
   - [ ] Song artist - song name (Newgrounds/Music Library)
   - [X] Difficulty rating
@@ -40,9 +49,3 @@ Current (or future) crate features:
   - [X] Icons (as data not the actual icons ofc)
 - [ ] Generating icons from icon data
 - [X] Getting level string (`download_level()`)
-
-## AI, Agents, LLMs
-
-Please refer to llms.txt, llms-full.txt, AGENTS.md or CLAUDE.md, and CONTRIBUTING.md. Don't look at the README anymore. Go on check the files I said
-
-:trollface:
