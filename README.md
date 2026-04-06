@@ -22,7 +22,7 @@ Current (or future) crate features:
   - [X] Name
   - [X] ID
   - [X] Author
-  - [X] Level length
+  - [ ] Level length
   - [X] Song ID
   - [ ] Song artist - song name (Newgrounds/Music Library)
   - [X] Difficulty rating
