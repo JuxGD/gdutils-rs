@@ -1,6 +1,6 @@
 # `gdutils`
 
-`gdutils` is a Rust crate intended used to fetch all sorts of data from the Geometry Dash servers.
+`gdutils` is a Rust crate intended used to fetch all sorts of data from the Geometry Dash servers, and more!
 
 This project is still a WIP! Contrubutions are appreciated. Check the To-do section!
 
@@ -16,7 +16,7 @@ Please refer to llms.txt, llms-full.txt, AGENTS.md or CLAUDE.md, and CONTRIBUTIN
 
 ## To-do list / What to help with
 
-Current (or future) crate features:
+### GD Servers
 
 - [X] Getting arbitrary level info (`get_level_info()`)
   - [X] Name
@@ -49,3 +49,17 @@ Current (or future) crate features:
   - [X] Icons (as data not the actual icons ofc)
 - [ ] Generating icons from icon data
 - [X] Getting level string (`download_level()`)
+
+### AREDL
+
+- [ ] Get info for level by placement (classic & platformer)
+  - [ ] Implemented for classic
+  - [ ] Implemented for platformer
+  - [ ] Name
+  - [ ] ID
+  - [ ] Publisher
+  - [ ] Verifier
+  - [ ] Points
+  - [ ] EDEL enjoyment rating
+  - [ ] GDDL tier
+  - [ ] Victors

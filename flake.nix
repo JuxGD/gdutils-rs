@@ -1,5 +1,5 @@
 {
-  description = "Flake for Rider, the BEST DAW";
+  description = "Flake for gdutils";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
@@ -11,7 +11,5 @@
     devShells.${system}.default = pkgs.mkShell {
       packages = with pkgs; [ rustc cargo ];
     };
-
-    packages.${system}.default = import ./default.nix;
   };
 }
