@@ -1,6 +1,6 @@
 use colonparse::hashmap_from;
 
-use crate::{constants::*};
+use crate::gd::constants::*;
 use std::fmt::{Debug};
 
 #[derive(Debug)]

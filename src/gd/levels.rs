@@ -2,8 +2,8 @@ use colonparse::hashmap_from;
 use std::fmt::{Debug};
 use std::collections::HashMap;
 
-use crate::constants::{URL_DATABASE, SECRET_COMMON};
-use crate::chk;
+use crate::gd::constants::{URL_DATABASE, SECRET_COMMON};
+use crate::gd::chk;
 // use crate::users;
 
 // Represents level information like name, id,
@@ -228,7 +228,7 @@ pub async fn get_timely_level_info(id: &str) -> LevelInfo {
 
     if response == "-1" {
         return LevelInfo {
-            name: String::from("0")
+            name: String::from("Invalid Level!")
         ,   id: 0
         ,   author: String::from("0")
         ,   author_account_id: 0

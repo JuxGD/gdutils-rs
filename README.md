@@ -52,14 +52,7 @@ Please refer to llms.txt, llms-full.txt, AGENTS.md or CLAUDE.md, and CONTRIBUTIN
 
 ### AREDL
 
-- [ ] Get info for level by placement (classic & platformer)
-  - [ ] Implemented for classic
-  - [ ] Implemented for platformer
-  - [ ] Name
-  - [ ] ID
-  - [ ] Publisher
-  - [ ] Verifier
-  - [ ] Points
-  - [ ] EDEL enjoyment rating
-  - [ ] GDDL tier
-  - [ ] Victors
+- [X] Get info for level by placement (classic & platformer)
+  - [X] Implemented for classic
+  - [X] Implemented for platformer
+  

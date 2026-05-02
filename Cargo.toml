@@ -1,7 +1,7 @@
 
 [package]
 name = "gdutils"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2024"
 license = "MIT"
 description = "Geometry Dash API wrapper for Rust (WIP, contribs appreciated!)"
@@ -9,10 +9,12 @@ homepage = "https://codeberg.org/JuxGD/gdutils-rs"
 repository = "https://github.com/JuxGD/gdutils-rs"
 
 [dependencies]
-reqwest = { version = "0.13.2", features = ["form"]}
-rand = "0.10.0"
+reqwest = { version = "0.13.3", features = ["form"]}
+rand = "0.10.1"
 xor_cryptor_keylen = "2.0.4"
 base64 = "0.22.1"
 rust-string-random = "0.1.0"
 colonparse = "0.1.2"
-tokio = { version = "1.51.0", features = ["full"] }
+tokio = { version = "1.52.1", features = ["full"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
