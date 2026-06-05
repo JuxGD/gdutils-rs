@@ -1,4 +1,4 @@
 pub mod levels;
 pub mod users;
-mod constants;
-mod chk;
+pub mod utils;
+pub mod chk;

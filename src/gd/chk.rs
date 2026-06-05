@@ -3,10 +3,10 @@ use xor_cryptor_keylen::XORCryptor;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 use rust_string_random::{random as random_string, Options, RandWay};
 
-pub fn generate(player_id: f32, key: String) -> String {
+pub fn generate(player_id: i32, key: &str) -> String {
 
-    let random_number_0 = random_range(0..1000000) as f32;
-    let random_number_1 = (random_number_0 + (player_id / 10000.0)) as usize;
+    let random_number_0 = f64::from(random_range(0..1_000_000));
+    let random_number_1 = (random_number_0 + (f64::from(player_id) / 10000.0)) as usize;
 
     let random_number_string = random_number_1.to_string();
 
@@ -15,7 +15,7 @@ pub fn generate(player_id: f32, key: String) -> String {
     let encrypted_buffer = match XORCryptor::encrypt_v2(key.as_bytes(), buffer) {
         Ok(enc) => enc,
         Err(e) => {
-            println!("Error: {}", e);
+            println!("Error: {e}");
             return String::from("1");
         }
     };
@@ -32,7 +32,5 @@ pub fn generate(player_id: f32, key: String) -> String {
 
     let random_string = random_string(5, rand_str_options);
 
-    let chk = format!("{:?}{}", random_string, base64_encrypted_string);
-
-    return chk;
+    format!("{random_string:?}{base64_encrypted_string}")
 }
