@@ -8,7 +8,7 @@ pub const URL_DATABASE: &str = "https://www.boomlings.com/database";
 pub const SECRET_COMMON: &str = "Wmfd2893gb7";
 
 /// Represents level information like name, id, song used, author, rating, etc.
-#[derive(Debug, Serialize, Deserialize, Clone, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default)]
 pub struct Level {
     pub level_id: i32
 ,   pub level_name: String
@@ -54,7 +54,7 @@ pub struct Level {
 ,   pub verification_time: Option<i32>
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default)]
 pub struct CommonLevelInfo {
     pub level_name: String
 ,   pub level_id: i32
@@ -69,17 +69,20 @@ pub struct CommonLevelInfo {
 ,   pub song_id: i32
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
 pub enum TimelyType {
     Daily,
     Weekly,
-    Event
+    Event,
+    
+    #[default]
+    Unknown
 }
 
 /// Represents timely level (daily, weekly, etc) specific data,
 /// AKA timely index (eg daily level #) and time left in seconds.
 /// For event levels, `time_left` should be ignored.
-#[derive(Debug, Serialize, Deserialize, Clone, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default)]
 pub struct TimelyLevel {
     pub level: Level
 ,   pub timely_index: i32
@@ -87,16 +90,19 @@ pub struct TimelyLevel {
 }
 
 /// USE `new()`! This is necessary for the compiler and analyzer to catch stuff
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct GDQuery {
     pub query: String,
     pub query_type: GDQueryType
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
 pub enum GDQueryType {
     ID,
-    Name
+    Name,
+    
+    #[default]
+    Unknown
 }
 
 impl GDQuery {
@@ -113,7 +119,7 @@ impl GDQuery {
 }
 
 /// Represents user information like username, ID, demons beaten, etc.
-#[derive(Debug, Serialize, Deserialize, Clone, Builder)]
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default)]
 pub struct User {
     pub username: String
 ,   pub user_id: i32

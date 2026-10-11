@@ -1,5 +1,6 @@
 use colonparse::hashmap_from;
 use eyre::OptionExt;
+use eyre::eyre;
 use std::collections::HashMap;
 use eyre::Error;
 
@@ -229,7 +230,8 @@ pub async fn get_timely_level(timely_type: TimelyType) -> Result<TimelyLevel, Er
     match timely_type {
         TimelyType::Daily => { id = "-1"; ltype = "0" },
         TimelyType::Weekly => { id = "-2"; ltype = "1" },
-        TimelyType::Event => { id = "-3"; ltype = "2" }
+        TimelyType::Event => { id = "-3"; ltype = "2" },
+        TimelyType::Unknown => return Err(eyre!("Unknown timely level type"))
     }
 
     let chk = if timely_type == TimelyType::Event { chk::generate_reward_chk(190_838_017, "59182")? } else { String::new() };

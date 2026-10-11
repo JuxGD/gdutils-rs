@@ -1,6 +1,6 @@
 use colonparse::{hashmap_from, tuples_vector_from};
 use std::collections::HashMap;
-use eyre::Error;
+use eyre::{Error, eyre};
 
 use crate::gd::utils::*;
 
@@ -80,7 +80,8 @@ pub async fn get_user_object(query: GDQuery) -> Result<String, Error> {
             user_result = tuples_vector_from(search_results);
 
             vec![("secret", SECRET_COMMON), ("targetAccountID", &user_result[11].1)]
-        }
+        },
+        GDQueryType::Unknown => return Err(eyre!("Unknown timely level type"))
     };
 
     post_request(url, form).await
