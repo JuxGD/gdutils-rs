@@ -1,6 +1,7 @@
 use derive_builder::Builder;
+use reqwest::header::HeaderMap;
 use serde::{Serialize, Deserialize};
-use eyre::Error;
+use eyre::Report;
 
 pub const URL: &str = "http://www.boomlings.com"; // because of Rust limitations, both URL and URL_DATABASE need to be changed
 pub const URL_DATABASE: &str = "https://www.boomlings.com/database";
@@ -18,7 +19,7 @@ pub struct Level {
 ,   pub difficulty_denominator: u8
 ,   pub difficulty_numerator: u8
 ,   pub downloads: u32
-,   pub set_completes: u32
+,   pub completes: u32
 ,   pub official_song: u8
 ,   pub game_version: u8
 ,   pub likes: i32
@@ -28,7 +29,6 @@ pub struct Level {
 ,   pub stars: u8
 ,   pub feature_score: i32
 ,   pub auto: bool
-,   pub record_string: String
 ,   pub password: Option<String>
 ,   pub upload_date: Option<String>
 ,   pub update_date: Option<String>
@@ -43,7 +43,7 @@ pub struct Level {
 ,   pub daily_number: Option<i32>
 ,   pub epic: u8
 ,   pub demon_difficulty: u8
-,   pub is_gauntlet: bool
+,   pub is_gauntlet: Option<bool>
 ,   pub objects: u16
 ,   pub editor_time: u32
 ,   pub editor_time_copies: u32
@@ -69,7 +69,7 @@ pub struct CommonLevelInfo {
 ,   pub song_id: i32
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
 pub enum TimelyType {
     Daily,
     Weekly,
@@ -120,7 +120,7 @@ pub struct User {
 ,   pub stars: u32
 ,   pub demon_count: u32
 ,   pub ranking: Option<u32>
-,   pub account_highlight: u32
+,   pub account_highlight: Option<String>
 ,   pub creator_points: u16
 ,   pub icon_id: Option<i32>
 ,   pub color: i32
@@ -182,7 +182,7 @@ pub fn check_if_numeric(string: &str) -> bool {
     true
 }
 
-pub async fn post_request(url: String, form: Vec<(&str, &str)>) -> Result<String, Error> {
+pub async fn post_request(url: String, form: Vec<(&str, &str)>) -> Result<String, Report> {
     Ok(reqwest::Client::new().post(url)
             .form(&form)
             .header("User_Agent", "")
@@ -193,9 +193,21 @@ pub async fn post_request(url: String, form: Vec<(&str, &str)>) -> Result<String
     )
 }
 
-pub async fn post_request_no_form(url: String) -> Result<String, Error> {
+pub async fn post_request_custom_headers(url: String, form: Vec<(&str, &str)>, headers: HeaderMap) -> Result<String, Report> {
     Ok(reqwest::Client::new().post(url)
-            .header("User_Agent", "")
+            .form(&form)
+            .headers(headers)
+            .send()
+            .await?
+            .text()
+            .await?
+    )
+}
+
+pub async fn get_request(url: String, query: Vec<(&str, &str)>, headers: HeaderMap) -> Result<String, Report> {
+    Ok(reqwest::Client::new().get(url)
+            .query(&query)
+            .headers(headers)
             .send()
             .await?
             .text()

@@ -3,22 +3,16 @@ use xor_cryptor_keylen::XORCryptor;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 use rust_string_random::{random as random_string, Options, RandWay};
 
-pub fn generate(player_id: i32, key: &str) -> String {
+pub fn generate_reward_chk(player_id: i32, key: &str) -> Result<String, eyre::Report> {
 
-    let random_number_0 = f64::from(random_range(0..1_000_000));
+    let random_number_0 = f64::from(random_range(0..=1_000_000));
     let random_number_1 = (random_number_0 + (f64::from(player_id) / 10000.0)) as usize;
 
     let random_number_string = random_number_1.to_string();
 
     let buffer = random_number_string.as_bytes().to_vec();
 
-    let encrypted_buffer = match XORCryptor::encrypt_v2(key.as_bytes(), buffer) {
-        Ok(enc) => enc,
-        Err(e) => {
-            println!("Error: {e}");
-            return String::from("1");
-        }
-    };
+    let encrypted_buffer = XORCryptor::encrypt_v2(key.as_bytes(), buffer)?;
 
     let encrypted_string = String::from_utf8_lossy(&encrypted_buffer);
     let base64_encrypted_string = URL_SAFE.encode(String::from(encrypted_string).as_bytes());
@@ -30,7 +24,7 @@ pub fn generate(player_id: i32, key: &str) -> String {
         specials: None,
     };
 
-    let random_string = random_string(5, rand_str_options);
+    let random_string = random_string(5, rand_str_options).unwrap_or(String::from("aaaaa"));
 
-    format!("{random_string:?}{base64_encrypted_string}")
+    Ok(format!("{}{}", random_string, base64_encrypted_string))
 }

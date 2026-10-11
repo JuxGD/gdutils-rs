@@ -1,4 +1,5 @@
 use colonparse::hashmap_from;
+use eyre::OptionExt;
 use std::collections::HashMap;
 use eyre::Error;
 
@@ -7,12 +8,12 @@ use crate::gd::chk;
 
 pub fn calculate_difficulty<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, String, S>) -> Result<String, Error> {
 
-    let numerator = level_hashmap["9"].parse::<i32>()?;
-    let denominator = level_hashmap["8"].parse::<i32>()?;
+    let numerator = level_hashmap.get("9").unwrap().parse::<i32>()?;
+    let denominator = level_hashmap.get("8").unwrap().parse::<i32>()?;
 
-    let demon: bool = !level_hashmap["17"].is_empty();
+    let demon: bool = !level_hashmap.get("17").unwrap().is_empty();
 
-    if level_hashmap["25"].is_empty() {
+    if level_hashmap.get("25").unwrap().is_empty() {
 
     } else {
         return Ok(String::from("Auto"));
@@ -50,9 +51,9 @@ pub fn calculate_difficulty<S: std::hash::BuildHasher>(level_hashmap: &HashMap<S
 
 pub fn calculate_quality<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, String, S>) -> Result<String, Error> {
 
-    let feature_score = level_hashmap.get("19").unwrap().parse::<i32>()?;
+    let feature_score = level_hashmap.get("19").ok_or_else(|| Error::msg("Error getting feature score from level hashmap"))?.parse::<i32>()?;
 
-    let quality: String = match level_hashmap.get("42").unwrap().parse::<i32>()? {
+    let quality: String = match level_hashmap.get("42").ok_or_else(|| Error::msg("Error getting epic value from level hashmap"))?.parse::<i32>()? {
         0 => if feature_score == 0 {
             String::from("Normal")
             } else {
@@ -73,58 +74,49 @@ pub fn calculate_quality<S: std::hash::BuildHasher>(level_hashmap: &HashMap<Stri
 
 pub fn build_level<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, String, S>) -> Result<Level, Error> {
     Ok(LevelBuilder::default()
-        .level_id(level_hashmap["1"].parse()?)
-        .level_name(String::from(&level_hashmap["2"]))
-        .description(String::from(&level_hashmap["3"]))
-        .level_string(Some(String::from(&level_hashmap["4"])))
-        .version(level_hashmap["5"].parse()?)
-        .player_id(level_hashmap["6"].parse()?)
-        .difficulty_denominator(level_hashmap["8"].parse()?)
-        .difficulty_numerator(level_hashmap["9"].parse()?)
-        .downloads(level_hashmap["10"].parse()?)
-        .set_completes(level_hashmap["11"].parse()?)
-        .official_song(level_hashmap["12"].parse()?)
-        .game_version(level_hashmap["13"].parse()?)
-        .likes(level_hashmap["14"].parse()?)
-        .length(level_hashmap["15"].parse()?)
-        .dislikes(level_hashmap["16"].parse()?)
-        .demon(level_hashmap["17"].parse()?)
-        .stars(level_hashmap["18"].parse()?)
-        .feature_score(level_hashmap["19"].parse()?)
-        .auto(level_hashmap["25"].parse()?)
-        .record_string(String::from(&level_hashmap["26"]))
-        .password(Some(String::from(&level_hashmap["27"])))
-        .upload_date(Some(String::from(&level_hashmap["28"])))
-        .update_date(Some(String::from(&level_hashmap["29"])))
-        .copied_id(level_hashmap["30"].parse()?)
-        .two_player(level_hashmap["31"].parse()?)
-        .custom_song_id(level_hashmap["35"].parse()?)
-        .extra_string(String::from(&level_hashmap["36"]))
-        .coins(level_hashmap["37"].parse()?)
-        .verified_coins(level_hashmap["38"].parse()?)
-        .stars_requested(level_hashmap["39"].parse()?)
-        .low_detail_mode(Some(level_hashmap["40"].parse()?))
-        .daily_number(Some(level_hashmap["41"].parse()?))
-        .epic(level_hashmap["42"].parse()?)
-        .demon_difficulty(level_hashmap["43"].parse()?)
-        .is_gauntlet(level_hashmap["44"].parse()?)
-        .objects(level_hashmap["45"].parse()?)
-        .editor_time(level_hashmap["46"].parse()?)
-        .editor_time_copies(level_hashmap["47"].parse()?)
-        .settings_string(Some(String::from(&level_hashmap["48"])))
-        .song_ids(Some(level_hashmap["52"].split(',').collect::<Vec<&str>>().iter().map(|s| s.parse::<i32>().unwrap()).collect()))
-        .sfx_ids(Some(level_hashmap["53"].split(',').collect::<Vec<&str>>().iter().map(|s| s.parse::<i32>().unwrap()).collect()))
-        .song_size(Some(level_hashmap["54"].parse()?))
-        .verification_time(Some(level_hashmap["57"].parse()?))
+        .level_id(level_hashmap.get("1").unwrap().parse()?)
+        .level_name(String::from(level_hashmap.get("2").unwrap()))
+        .description(String::from(level_hashmap.get("3").unwrap()))
+        .level_string(Some(String::from(level_hashmap.get("4").unwrap())))
+        .version(level_hashmap.get("5").unwrap().parse()?)
+        .player_id(level_hashmap.get("6").unwrap().parse()?)
+        .difficulty_denominator(level_hashmap.get("8").unwrap().parse()?)
+        .difficulty_numerator(level_hashmap.get("9").unwrap().parse()?)
+        .downloads(level_hashmap.get("10").unwrap().parse()?)
+        .completes(Some(level_hashmap.get("11").unwrap_or(&String::from("0")).parse()?).unwrap())
+        .official_song(level_hashmap.get("12").unwrap().parse()?)
+        .game_version(level_hashmap.get("13").unwrap().parse()?)
+        .likes(level_hashmap.get("14").unwrap().parse()?)
+        .length(level_hashmap.get("15").unwrap().parse()?)
+        .dislikes(Some(level_hashmap.get("16").unwrap_or(&String::from("0")).parse()?).unwrap())
+        .demon(level_hashmap.get("17").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .stars(level_hashmap.get("18").unwrap().parse()?)
+        .feature_score(level_hashmap.get("19").unwrap().parse()?)
+        .auto(level_hashmap.get("25").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .password(Some(String::from(level_hashmap.get("27").unwrap())))
+        .upload_date(Some(String::from(level_hashmap.get("28").unwrap())))
+        .update_date(Some(String::from(level_hashmap.get("29").unwrap())))
+        .copied_id(level_hashmap.get("30").unwrap().parse()?)
+        .two_player(level_hashmap.get("31").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .custom_song_id(level_hashmap.get("35").unwrap().parse()?)
+        .extra_string(String::from(level_hashmap.get("36").unwrap()))
+        .coins(level_hashmap.get("37").unwrap().parse()?)
+        .verified_coins(level_hashmap.get("38").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .stars_requested(level_hashmap.get("39").unwrap().parse()?)
+        .low_detail_mode(Some(level_hashmap.get("40").map(|s| if s == "0" {false} else {true}).unwrap_or(false)))
+        .daily_number(Some(level_hashmap.get("41").unwrap_or(&String::from("0")).parse()?))
+        .epic(level_hashmap.get("42").unwrap().parse()?)
+        .demon_difficulty(level_hashmap.get("43").unwrap().parse()?)
+        .is_gauntlet(Some(level_hashmap.get("44").map(|s| if s == "0" {false} else {true}).unwrap_or(false)))
+        .objects(level_hashmap.get("45").unwrap().parse()?)
+        .editor_time(level_hashmap.get("46").unwrap().parse()?)
+        .editor_time_copies(level_hashmap.get("47").unwrap().parse()?)
+        .settings_string(Some(String::from(level_hashmap.get("48").unwrap_or(&String::from("")))))
+        .song_ids(Some(level_hashmap.get("52").unwrap_or(&String::from("0")).split(',').collect::<Vec<&str>>().iter().map(|s| -> Result<i32, Error> {Ok(s.parse::<i32>()?)}).collect::<Result<Vec<i32>, Error>>()?))
+        .sfx_ids(Some(level_hashmap.get("53").unwrap_or(&String::from("0")).split(',').collect::<Vec<&str>>().iter().map(|s| -> Result<i32, Error> {Ok(s.parse::<i32>()?)}).collect::<Result<Vec<i32>, Error>>()?))
+        .song_size(Some(level_hashmap.get("54").unwrap_or(&String::from("0")).parse()?))
+        .verification_time(Some(level_hashmap.get("57").unwrap().parse()?))
         .build()?)
-}
-
-fn check_type(ltype: &String) -> String {
-    if ltype == "2" {
-        chk::generate(190_838_017, "59182")
-    } else {
-        String::new()
-    }
 }
 
 /// Searches levels by ID or by name
@@ -134,47 +126,41 @@ fn check_type(ltype: &String) -> String {
 /// To get the level(s list) in vector form, use `search_levels_vector`.
 /// This will let you do `[0]` to get the first level in the list.
 pub async fn search_levels(query: GDQuery) -> Result<String, Error> {
-    match query.query_type {
-        GDQueryType::ID => {
-            let url = format!("{URL_DATABASE}/getGJLevels21.php");
-            let form = vec![("secret", SECRET_COMMON), ("levelID", &query.query)];
-            Ok(post_request(url, form).await?)
-        },
-        GDQueryType::Name => {
-            let url = format!("{URL_DATABASE}/getGJLevels21.php");
-            let form = vec![("secret", SECRET_COMMON), ("str", &query.query), ("type", "0")];
-            let levels = post_request(url, form).await?;
-            Ok(levels)
-        }
-    }
+        let url = format!("{URL_DATABASE}/getGJLevels21.php");
+        let form = vec![("secret", SECRET_COMMON), ("str", &query.query), ("type", "0")];
+        post_request(url, form).await
 }
 
 pub async fn search_levels_vector(query: GDQuery) -> Result<Vec<String>, Error> {
-    let levels = search_levels(query).await?;
-    let levels = levels.split('#').collect::<Vec<&str>>();
+    let result = search_levels(query).await?;
+    let data = result.split('#').next().ok_or_eyre("Error retrieving level search data")?;
+    let levels = data.split('|').collect::<Vec<&str>>();
     let mut levels_vector: Vec<_> = vec![];
     
     for level in levels {
         levels_vector.push(String::from(level));     
     }
+
     Ok(levels_vector)
 }
 
-/// Gets the full level object as a string, from name.
-/// When using a name for query, the function will return the first level it finds.
-pub async fn download_level_by_name(name: String) -> Result<String, Error> {
+/// Gets the full level object as a string, from name. It will return the first level it finds, matching that name.
+pub async fn download_level_by_name(name: &str) -> Result<String, Error> {
     let query = GDQuery {
-        query: name,
+        query: String::from(name),
         query_type: GDQueryType::Name,
     };
 
     let levels = search_levels_vector(query).await?;
-    Ok(Clone::clone(&levels[0]))
+
+    let level_hashmap = hashmap_from(Clone::clone(&levels[0]));
+
+    download_level_by_id(&level_hashmap.get("1").unwrap()).await
 }
 
 /// Turns a given level object string into a hashmap.
 pub fn level_object_to_hashmap(level_object: String) -> Result<HashMap<String, String>, Error> {
-    Ok(hashmap_from(level_object))
+    Ok(hashmap_from(String::from(level_object.split('#').collect::<Vec<_>>()[0])))
     // let level_object = search_levels(query).await?;
 
     // if level_object == "-1" {
@@ -189,7 +175,7 @@ pub fn level_object_to_hashmap(level_object: String) -> Result<HashMap<String, S
     //     let mut new_author_list: Vec<&str> = Vec::new();
     //     for n in level_list {
     //         let level_hashmap = hashmap_from(String::from(n));
-    //         let player_id = String::from(level_hashmap.get("6").unwrap());
+    //         let player_id = String::from(level_hashmap.get("6").unwrap().unwrap());
             
     //         for author in &author_list {
     //             let author_player_id = author.split(':').collect::<Vec<&str>>()[0];
@@ -241,27 +227,29 @@ pub async fn get_timely_level(timely_type: TimelyType) -> Result<TimelyLevel, Er
     let id: &str;
     let ltype: &str;
     match timely_type {
-        TimelyType::Daily => { id = "-1"; ltype = "1" },
-        TimelyType::Weekly => { id = "-2"; ltype = "2" },
-        TimelyType::Event => { id = "-3"; ltype = "3" }
+        TimelyType::Daily => { id = "-1"; ltype = "0" },
+        TimelyType::Weekly => { id = "-2"; ltype = "1" },
+        TimelyType::Event => { id = "-3"; ltype = "2" }
     }
 
-    let chk = check_type(&String::from(ltype));
+    let chk = if timely_type == TimelyType::Event { chk::generate_reward_chk(190_838_017, "59182")? } else { String::new() };
 
     let url = format!("{URL_DATABASE}/getGJDailyLevel.php");
     let form = vec![("secret", SECRET_COMMON), ("type", ltype), ("chk", &chk)];
 
-    let timely_info = post_request(url, form).await?.split('|').collect::<Vec<&str>>().iter().map(|s| s.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+    let timely_info_string = post_request(url, form).await?;
+    
+    let timely_info_vector_full = timely_info_string.split('|').collect::<Vec<&str>>();
 
     let level_hashmap = level_object_to_hashmap(download_level_by_id(id).await?)?;
 
-    let timely_index = timely_info[0];
-    let time_left = timely_info[1];
+    let timely_index = timely_info_vector_full.get(0).ok_or_eyre("Error getting timely index")?.parse().to_owned();
+    let time_left = timely_info_vector_full.get(1).ok_or_eyre("Error getting time left for timely")?.parse().to_owned();
 
     Ok(TimelyLevel {
         level: build_level(&level_hashmap)?,
-        timely_index,
-        time_left
+        timely_index: timely_index?,
+        time_left: time_left?
     })
 }
 
