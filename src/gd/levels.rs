@@ -44,11 +44,9 @@ pub fn calculate_difficulty(numerator: i32, denominator: i32, auto: bool, demon:
     Ok(difficulty)
  }
 
-pub fn calculate_quality<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, String, S>) -> Result<String, Error> {
+pub fn calculate_quality(feature_score: i32, epic: i32) -> Result<String, Error> {
 
-    let feature_score = level_hashmap.get("19").ok_or_else(|| Error::msg("Error getting feature score from level hashmap"))?.parse::<i32>()?;
-
-    let quality: String = match level_hashmap.get("42").ok_or_else(|| Error::msg("Error getting epic value from level hashmap"))?.parse::<i32>()? {
+    let quality: String = match epic {
         0 => if feature_score == 0 {
             String::from("Normal")
             } else {
@@ -57,7 +55,7 @@ pub fn calculate_quality<S: std::hash::BuildHasher>(level_hashmap: &HashMap<Stri
         1 => String::from("Epic"),
         2 => String::from("Legendary"),
         3 => String::from("Mythic"),
-        _ => String::from("somethingelse"),
+        _ => String::from("Unknown"),
     };
 
     Ok(quality)
