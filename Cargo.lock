@@ -451,7 +451,7 @@ dependencies = [
 
 [[package]]
 name = "gdutils"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "base64 0.23.1",
  "colonparse",

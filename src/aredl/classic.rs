@@ -27,6 +27,10 @@ pub async fn get_aredl_level_info_by_position(position: usize, api_key: &str) ->
 
 pub async fn get_aredl_gd_info(position: usize, api_key: &str) -> Result<Level, eyre::Report> {
     let list = get_aredl_list(api_key).await?;
+    
+    if position > list.len() {
+        return Err(GDUtilsAREDLError::NumberTooHighError().into())
+    }
 
     build_level(&level_object_to_hashmap(download_level_by_id(&list[position - 1].level_id.to_string()).await?)?)
 }
