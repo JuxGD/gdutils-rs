@@ -1,4 +1,5 @@
-use crate::{aredl::utils::{AREDLLevelInfo, URL_AREPL}, gd::{levels::*, utils::{Level, get_request}}};
+
+use crate::{aredl::utils::{AREDLLevelInfo, URL_AREPL, GDUtilsAREDLError}, gd::{levels::*, utils::{Level, get_request}}};
 use reqwest::header::{ACCEPT, HeaderMap};
 
 pub async fn get_aredl_list(api_key: &str) -> Result<Vec<AREDLLevelInfo>, eyre::Report> {
@@ -15,6 +16,10 @@ pub async fn get_aredl_list(api_key: &str) -> Result<Vec<AREDLLevelInfo>, eyre::
 
 pub async fn get_aredl_level_info_by_position(position: usize, api_key: &str) -> Result<AREDLLevelInfo, eyre::Report> {    
     let list = get_aredl_list(api_key).await?;
+
+    if position > list.len() {
+        return Err(GDUtilsAREDLError::NumberTooHighError().into())
+    }
 
     let level = &list[position - 1];
 

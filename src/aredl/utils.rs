@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
+use std::error::Error;
+use std::fmt;
 
 pub const URL_AREDL: &str = "https://api.aredl.net/v2/api/aredl";
 pub const URL_AREPL: &str = " https://api.aredl.net/v2/api/arepl";
@@ -115,3 +117,18 @@ pub struct AREDLUserSearchResults {
     pub pages: u16,
     pub count: u32,
 }
+
+#[derive(Debug)]
+pub enum GDUtilsAREDLError {
+    NumberTooHighError()
+}
+
+impl fmt::Display for GDUtilsAREDLError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            GDUtilsAREDLError::NumberTooHighError() => write!(f, "The requested AREDL position does not exist")
+        }
+    }
+}
+
+impl Error for GDUtilsAREDLError {}
