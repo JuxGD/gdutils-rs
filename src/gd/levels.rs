@@ -146,14 +146,14 @@ pub async fn download_level_by_name(name: &str) -> Result<String, Error> {
 
     let levels = search_levels_vector(query).await?;
 
-    let level_hashmap = hashmap_from(Clone::clone(&levels[0]));
+    let level_hashmap = hashmap_from(&levels[0])?;
 
     download_level_by_id(&level_hashmap.get("1").unwrap()).await
 }
 
 /// Turns a given level object string into a hashmap.
 pub fn level_object_to_hashmap(level_object: String) -> Result<HashMap<String, String>, Error> {
-    Ok(hashmap_from(String::from(level_object.split('#').collect::<Vec<_>>()[0])))
+    Ok(hashmap_from(&String::from(level_object.split('#').collect::<Vec<_>>()[0]))?)
     // let level_object = search_levels(query).await?;
 
     // if level_object == "-1" {

@@ -77,7 +77,7 @@ pub async fn get_user_object(query: GDQuery) -> Result<String, Error> {
             
             let search_results = post_request(url, form).await?;
             
-            user_result = tuples_vector_from(search_results);
+            user_result = tuples_vector_from(&search_results)?;
 
             vec![("secret", SECRET_COMMON), ("targetAccountID", &user_result[11].1)]
         },
@@ -90,7 +90,7 @@ pub async fn get_user_object(query: GDQuery) -> Result<String, Error> {
 pub async fn get_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, String>, Error> {
     let user_object = get_user_object(query).await;
 
-    Ok(hashmap_from(user_object?))
+    Ok(hashmap_from(&user_object?)?)
 }
 
 pub async fn get_user(query: GDQuery) -> Result<User, Error> {
