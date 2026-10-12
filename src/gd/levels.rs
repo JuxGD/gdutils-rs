@@ -7,14 +7,8 @@ use eyre::Error;
 use crate::gd::utils::*;
 use crate::gd::chk;
 
-pub fn calculate_difficulty<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, String, S>) -> Result<String, Error> {
-
-    let numerator = level_hashmap.get("9").unwrap().parse::<i32>()?;
-    let denominator = level_hashmap.get("8").unwrap().parse::<i32>()?;
-
-    let demon: bool = !level_hashmap.get("17").unwrap().is_empty();
-
-    if level_hashmap.get("25").unwrap().is_empty() {
+pub fn calculate_difficulty(numerator: i32, denominator: i32, auto: bool, demon: bool) -> Result<String, Error> {
+    if auto == false {
 
     } else {
         return Ok(String::from("Auto"));
@@ -41,10 +35,10 @@ pub fn calculate_difficulty<S: std::hash::BuildHasher>(level_hashmap: &HashMap<S
         ,   3 => String::from("Hard Demon")
         ,   4 => String::from("Insane Demon")
         ,   5 => String::from("Extreme Demon")
-        ,   _  => String::from("somethingelse")
+        ,   _  => String::from("Unknown Demon")
         }
     } else {
-        difficulty = String::from("somethingelse");
+        difficulty = String::from("Unknown Demon");
     }
 
     Ok(difficulty)
