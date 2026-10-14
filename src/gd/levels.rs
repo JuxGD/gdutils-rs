@@ -9,39 +9,38 @@ use crate::gd::chk;
 
 pub fn calculate_difficulty(numerator: i32, denominator: i32, auto: bool, demon: bool) -> Result<String, Error> {
     if auto == false {
+        let difficulty: String;
 
+        if denominator == 0 {
+            difficulty = String::from("N/A");
+        } else if !demon {
+            difficulty = match numerator / denominator {
+                0 => String::from("Unrated")
+            ,   1 => String::from("Easy")
+            ,   2 => String::from("Medium")
+            ,   3 => String::from("Hard")
+            ,   4 => String::from("Harder")
+            ,   5 => String::from("Insane")
+            ,   _  => String::from("somethingelse")
+            }
+        } else if demon {
+            difficulty = match numerator / denominator {
+                1 => String::from("Easy Demon")
+            ,   2 => String::from("Medium Demon")
+            ,   3 => String::from("Hard Demon")
+            ,   4 => String::from("Insane Demon")
+            ,   5 => String::from("Extreme Demon")
+            ,   _  => String::from("Unknown Demon")
+            }
+        } else {
+            difficulty = String::from("Unknown Demon");
+        }
+
+        Ok(difficulty)
     } else {
         return Ok(String::from("Auto"));
     }
 
-    let difficulty: String;
-
-    if denominator == 0 {
-        difficulty = String::from("N/A");
-    } else if !demon {
-        difficulty = match numerator / denominator {
-            0 => String::from("Unrated")
-        ,   1 => String::from("Easy")
-        ,   2 => String::from("Medium")
-        ,   3 => String::from("Hard")
-        ,   4 => String::from("Harder")
-        ,   5 => String::from("Insane")
-        ,   _  => String::from("somethingelse")
-        }
-    } else if demon {
-        difficulty = match numerator / denominator {
-            1 => String::from("Easy Demon")
-        ,   2 => String::from("Medium Demon")
-        ,   3 => String::from("Hard Demon")
-        ,   4 => String::from("Insane Demon")
-        ,   5 => String::from("Extreme Demon")
-        ,   _  => String::from("Unknown Demon")
-        }
-    } else {
-        difficulty = String::from("Unknown Demon");
-    }
-
-    Ok(difficulty)
  }
 
 pub fn calculate_quality(feature_score: i32, epic: i32) -> Result<String, Error> {
@@ -82,33 +81,33 @@ pub fn build_level<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, St
         .likes(level_hashmap.get("14").unwrap().parse()?)
         .length(level_hashmap.get("15").unwrap().parse()?)
         .dislikes(Some(level_hashmap.get("16").unwrap_or(&String::from("0")).parse()?).unwrap())
-        .demon(level_hashmap.get("17").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .demon(level_hashmap.get("17").map(|s| if s == "" {false} else {true}).unwrap_or(false))
         .stars(level_hashmap.get("18").unwrap().parse()?)
         .feature_score(level_hashmap.get("19").unwrap().parse()?)
-        .auto(level_hashmap.get("25").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .auto(level_hashmap.get("25").map(|s| if s == "" {false} else {true}).unwrap_or(false))
         .password(Some(String::from(level_hashmap.get("27").unwrap())))
         .upload_date(Some(String::from(level_hashmap.get("28").unwrap())))
         .update_date(Some(String::from(level_hashmap.get("29").unwrap())))
         .copied_id(level_hashmap.get("30").unwrap().parse()?)
-        .two_player(level_hashmap.get("31").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .two_player(level_hashmap.get("31").map(|s| if s == "" {false} else {true}).unwrap_or(false))
         .custom_song_id(level_hashmap.get("35").unwrap().parse()?)
         .extra_string(String::from(level_hashmap.get("36").unwrap()))
         .coins(level_hashmap.get("37").unwrap().parse()?)
-        .verified_coins(level_hashmap.get("38").map(|s| if s == "0" {false} else {true}).unwrap_or(false))
+        .verified_coins(level_hashmap.get("38").map(|s| if s == "" {false} else {true}).unwrap_or(false))
         .stars_requested(level_hashmap.get("39").unwrap().parse()?)
-        .low_detail_mode(Some(level_hashmap.get("40").map(|s| if s == "0" {false} else {true}).unwrap_or(false)))
+        .low_detail_mode(Some(level_hashmap.get("40").map(|s| if s == "" {false} else {true}).unwrap_or(false)))
         .daily_number(Some(level_hashmap.get("41").unwrap_or(&String::from("0")).parse()?))
         .epic(level_hashmap.get("42").unwrap().parse()?)
         .demon_difficulty(level_hashmap.get("43").unwrap().parse()?)
-        .is_gauntlet(Some(level_hashmap.get("44").map(|s| if s == "0" {false} else {true}).unwrap_or(false)))
+        .is_gauntlet(Some(level_hashmap.get("44").map(|s| if s == "" {false} else {true}).unwrap_or(false)))
         .objects(level_hashmap.get("45").unwrap().parse()?)
-        .editor_time(level_hashmap.get("46").unwrap().parse()?)
-        .editor_time_copies(level_hashmap.get("47").unwrap().parse()?)
+        .editor_time(level_hashmap.get("46").map(|s| if s == "" { 0 } else { s.parse().unwrap() }).unwrap())
+        .editor_time_copies(level_hashmap.get("47").map(|s| if s == "" { 0 } else { s.parse().unwrap() }).unwrap())
         .settings_string(Some(String::from(level_hashmap.get("48").unwrap_or(&String::from("")))))
         .song_ids(Some(level_hashmap.get("52").unwrap_or(&String::from("0")).split(',').collect::<Vec<&str>>().iter().map(|s| -> Result<i32, Error> {Ok(s.parse::<i32>()?)}).collect::<Result<Vec<i32>, Error>>()?))
         .sfx_ids(Some(level_hashmap.get("53").unwrap_or(&String::from("0")).split(',').collect::<Vec<&str>>().iter().map(|s| -> Result<i32, Error> {Ok(s.parse::<i32>()?)}).collect::<Result<Vec<i32>, Error>>()?))
         .song_size(Some(level_hashmap.get("54").unwrap_or(&String::from("0")).parse()?))
-        .verification_time(Some(level_hashmap.get("57").unwrap().parse()?))
+        .verification_time(Some(level_hashmap.get("57").map(|s| if s == "" { 0 } else { s.parse().unwrap() }).unwrap()))
         .build()?)
 }
 
@@ -247,18 +246,23 @@ pub async fn get_timely_level(timely_type: TimelyType) -> Result<TimelyLevel, Er
     })
 }
 
-// pub async fn get_timely_info(ltype: String) -> Result<String, Error> {
-//     let url = format!("{}/getGJDailyLevel.php", URL_DATABASE);
+pub async fn get_timely_info(timely_type: TimelyType) -> Result<String, Error> {
+    let ltype: &str;
+    match timely_type {
+        TimelyType::Daily => { ltype = "0" },
+        TimelyType::Weekly => { ltype = "1" },
+        TimelyType::Event => { ltype = "2" },
+        TimelyType::Unknown => return Err(eyre!("Unknown timely level type"))
+    }
 
-//     let client = reqwest::Client::new();
+    let url = format!("{}/getGJDailyLevel.php", URL_DATABASE);
 
-//     let chk = check_type(&ltype);
+    let chk = if timely_type == TimelyType::Event { chk::generate_reward_chk(190_838_017, "59182")? } else { String::new() };
 
-//     let form = vec![("secret", SECRET_COMMON), ("type", &ltype), ("chk", &chk)];
+    let form = vec![("secret", SECRET_COMMON), ("type", &ltype), ("chk", &chk)];
 
-//     Ok(post_request(url, form).await?)
-    
-// }
+    Ok(post_request(url, form).await?)
+}
 
 // pub async fn get_daily() -> TimelyLevel {
 //     let daily = get_timely(String::from("0")).await;

@@ -16,8 +16,8 @@ pub struct Level {
 ,   pub level_string: Option<String>
 ,   pub version: u16
 ,   pub player_id: i32
-,   pub difficulty_denominator: u8
-,   pub difficulty_numerator: u8
+,   pub difficulty_denominator: i8
+,   pub difficulty_numerator: i8
 ,   pub downloads: u32
 ,   pub completes: u32
 ,   pub official_song: u8
