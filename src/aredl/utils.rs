@@ -118,7 +118,7 @@ pub struct AREDLUserSearchResults {
     pub count: u32,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum GDUtilsAREDLError {
     NumberTooHighError()
 }
@@ -126,7 +126,7 @@ pub enum GDUtilsAREDLError {
 impl fmt::Display for GDUtilsAREDLError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            GDUtilsAREDLError::NumberTooHighError() => write!(f, "The requested AREDL position does not exist")
+            Self::NumberTooHighError() => write!(f, "The requested AREDL position does not exist")
         }
     }
 }

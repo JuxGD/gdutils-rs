@@ -1,6 +1,7 @@
 use derive_builder::Builder;
 use reqwest::header::HeaderMap;
 use serde::{Serialize, Deserialize};
+use core::fmt;
 use eyre::Report;
 
 pub const URL: &str = "http://www.boomlings.com"; // because of Rust limitations, both URL and URL_DATABASE need to be changed
@@ -69,7 +70,7 @@ pub struct CommonLevelInfo {
 ,   pub song_id: i32
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TimelyType {
     Daily,
     Weekly,
@@ -112,6 +113,7 @@ pub enum GDQueryType {
 }
 
 impl GDQuery {
+    #[must_use]
     pub fn new(query: &str) -> Self {
         Self {
             query: String::from(query),
@@ -185,6 +187,7 @@ pub struct User {
 ,   pub custom: Option<String>
 }
 
+#[must_use]
 pub fn check_if_numeric(string: &str) -> bool {
     for c in string.chars() {
         if !c.is_numeric() {
@@ -225,4 +228,41 @@ pub async fn get_request(url: String, query: Vec<(&str, &str)>, headers: HeaderM
             .text()
             .await?
     )
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum GDUtilsError {
+    NoTimelyLevelError(TimelyType)
+,   UnknownTimelyTypeError()
+,   UnknownGDQueryTypeError()
+,   GenericError(String)
+}
+
+impl fmt::Display for GDUtilsError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::NoTimelyLevelError(t) => {
+                let timely = match t {
+                    TimelyType::Daily => Ok("daily"),
+                    TimelyType::Weekly => Ok("weekly"),
+                    TimelyType::Event => Ok("event"),
+                    TimelyType::Unknown => Err(Self::UnknownTimelyTypeError())
+                };
+
+                write!(f, "There is no {} level!", timely?)
+            },
+
+            Self::UnknownTimelyTypeError() => write!(f, "Unknown timely level type!"),
+            Self::UnknownGDQueryTypeError() => write!(f, "Unknown GD query type!"),
+            Self::GenericError(e) => write!(f, "Error: {e}")
+        }
+    }
+}
+
+impl std::error::Error for GDUtilsError {}
+
+impl From<GDUtilsError> for std::fmt::Error {
+    fn from(_: GDUtilsError) -> Self {
+        Self
+    }
 }

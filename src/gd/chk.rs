@@ -2,8 +2,9 @@ use rand::random_range;
 use xor_cryptor_keylen::XORCryptor;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE};
 use rust_string_random::{random as random_string, Options, RandWay};
+use eyre::Report;
 
-pub fn generate_reward_chk(player_id: i32, key: &str) -> Result<String, eyre::Report> {
+pub fn generate_reward_chk(player_id: i32, key: &str) -> Result<String, Report> {
 
     let random_number_0 = f64::from(random_range(0..=1_000_000));
     let random_number_1 = (random_number_0 + (f64::from(player_id) / 10000.0)) as usize;
@@ -24,7 +25,7 @@ pub fn generate_reward_chk(player_id: i32, key: &str) -> Result<String, eyre::Re
         specials: None,
     };
 
-    let random_string = random_string(5, rand_str_options).unwrap_or(String::from("aaaaa"));
+    let random_string = random_string(5, rand_str_options).unwrap_or_else(|_| String::from("aaaaa"));
 
-    Ok(format!("{}{}", random_string, base64_encrypted_string))
+    Ok(format!("{random_string}{base64_encrypted_string}"))
 }

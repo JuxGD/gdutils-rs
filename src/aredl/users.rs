@@ -14,7 +14,7 @@ pub async fn get_aredl_user_info(id: &str) -> Result<AREDLUser, Report> {
 }
 
 pub async fn search_aredl_users(name: &str) -> Result<AREDLUserSearchResults, Report> {
-    let url = format!("{URL_USERS}");
+    let url = String::from(URL_USERS);
     let query: Vec<(&str, &str)> = vec![("name_filter", name)];
     let mut headers = HeaderMap::new();
     headers.insert(ACCEPT, "application/json".parse()?);
@@ -29,5 +29,5 @@ pub async fn get_aredl_user_info_by_name(name: &str) -> Result<AREDLUser, Report
 
     let user = &users.data[0];
 
-    Ok(get_aredl_user_info(&user.id).await?)
+    get_aredl_user_info(&user.id).await
 }

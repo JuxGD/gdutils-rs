@@ -1,10 +1,10 @@
 use colonparse::{hashmap_from, tuples_vector_from};
 use std::collections::HashMap;
-use eyre::{Error, eyre};
+use eyre::Report;
 
-use crate::gd::utils::*;
+use crate::gd::utils::{User, UserBuilder, GDQuery, URL_DATABASE, GDQueryType, SECRET_COMMON, post_request, GDUtilsError};
 
-pub fn build_user<S: std::hash::BuildHasher>(user_hashmap: &HashMap<String, String, S>) -> Result<User, Error> {
+pub fn build_user<S: std::hash::BuildHasher>(user_hashmap: &HashMap<String, String, S>) -> Result<User, Report> {
     Ok(UserBuilder::default()
         .username(String::from(user_hashmap.get("1").unwrap()))
         .user_id(user_hashmap.get("2").unwrap().parse()?)
@@ -24,7 +24,7 @@ pub fn build_user<S: std::hash::BuildHasher>(user_hashmap: &HashMap<String, Stri
         .user_coins(user_hashmap.get("17").unwrap().parse()?)
         .message_state(Some(user_hashmap.get("18").unwrap_or(&String::from("0")).parse()?))
         .friends_state(Some(user_hashmap.get("19").unwrap_or(&String::from("0")).parse()?))
-        .youtube(Some(String::from(user_hashmap.get("20").unwrap_or(&String::from("")))))
+        .youtube(Some(String::from(user_hashmap.get("20").unwrap_or(&String::new()))))
         .acc_icon(Some(user_hashmap.get("21").unwrap_or(&String::from("0")).parse()?))
         .acc_ship(Some(user_hashmap.get("22").unwrap_or(&String::from("0")).parse()?))
         .acc_ball(Some(user_hashmap.get("23").unwrap_or(&String::from("0")).parse()?))
@@ -32,8 +32,8 @@ pub fn build_user<S: std::hash::BuildHasher>(user_hashmap: &HashMap<String, Stri
         .acc_dart(Some(user_hashmap.get("25").unwrap_or(&String::from("0")).parse()?))
         .acc_robot(Some(user_hashmap.get("26").unwrap_or(&String::from("0")).parse()?))
         .acc_streak(Some(user_hashmap.get("27").unwrap_or(&String::from("0")).parse()?))
-        .acc_glow(Some(user_hashmap.get("28").map(|s| if s == "" {false} else {true}).unwrap_or(false)))
-        .is_registered(Some(user_hashmap.get("29").map(|s| if s == "" {false} else {true}).unwrap_or(false)))
+        .acc_glow(Some(user_hashmap.get("28").is_some_and(std::string::String::is_empty)))
+        .is_registered(Some(user_hashmap.get("29").is_some_and(std::string::String::is_empty)))
         .global_rank(Some(user_hashmap.get("30").unwrap_or(&String::from("0")).parse()?))
         .friend_state(Some(user_hashmap.get("31").unwrap_or(&String::from("0")).parse()?))
         .friend_request_id(Some(user_hashmap.get("32").unwrap_or(&String::from("0")).parse()?))
@@ -42,7 +42,7 @@ pub fn build_user<S: std::hash::BuildHasher>(user_hashmap: &HashMap<String, Stri
         .messages(Some(user_hashmap.get("38").unwrap_or(&String::from("0")).parse()?))
         .friend_requests(Some(user_hashmap.get("39").unwrap_or(&String::from("0")).parse()?))
         .new_friends(Some(user_hashmap.get("40").unwrap_or(&String::from("0")).parse()?))
-        .new_friend_request(Some(user_hashmap.get("41").map(|s| if s == "" {false} else {true}).unwrap_or(false)))
+        .new_friend_request(Some(user_hashmap.get("41").is_some_and(std::string::String::is_empty)))
         .age(Some(user_hashmap.get("42").unwrap_or(&String::from("0")).parse()?))
         .acc_spider(Some(user_hashmap.get("43").unwrap_or(&String::from("0")).parse()?))
         .twitter(Some(user_hashmap.get("44").unwrap_or(&String::from("0")).parse()?))
@@ -65,7 +65,7 @@ pub fn build_user<S: std::hash::BuildHasher>(user_hashmap: &HashMap<String, Stri
         .build()?)
 }
 
-pub async fn get_user_object(query: GDQuery) -> Result<String, Error> {
+pub async fn get_user_object(query: GDQuery) -> Result<String, Report> {
     let user_result: Vec<(String, String)>; // don't mind this
 
     let url = format!("{URL_DATABASE}/getGJUserInfo20.php");
@@ -81,19 +81,19 @@ pub async fn get_user_object(query: GDQuery) -> Result<String, Error> {
 
             vec![("secret", SECRET_COMMON), ("targetAccountID", &user_result[11].1)]
         },
-        GDQueryType::Unknown => return Err(eyre!("Unknown timely level type"))
+        GDQueryType::Unknown => return Err(GDUtilsError::UnknownGDQueryTypeError().into())
     };
 
     post_request(url, form).await
 }
 
-pub async fn get_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, String>, Error> {
+pub async fn get_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, String>, Report> {
     let user_object = get_user_object(query).await;
 
-    Ok(hashmap_from(&user_object?)?)
+    hashmap_from(&user_object?)
 }
 
-pub async fn get_user(query: GDQuery) -> Result<User, Error> {
+pub async fn get_user(query: GDQuery) -> Result<User, Report> {
     let user_hashmap = get_user_object_hashmap(query).await?;
 
     build_user(&user_hashmap)
