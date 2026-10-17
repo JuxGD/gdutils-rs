@@ -246,7 +246,7 @@ pub async fn get_timely_level(timely_type: TimelyType) -> Result<TimelyLevel, Er
     })
 }
 
-pub async fn get_timely_info(timely_type: TimelyType) -> Result<String, Error> {
+pub async fn get_timely_info(timely_type: TimelyType) -> Result<TimelyInfo, Error> {
     let ltype: &str;
     match timely_type {
         TimelyType::Daily => { ltype = "0" },
@@ -261,7 +261,12 @@ pub async fn get_timely_info(timely_type: TimelyType) -> Result<String, Error> {
 
     let form = vec![("secret", SECRET_COMMON), ("type", &ltype), ("chk", &chk)];
 
-    Ok(post_request(url, form).await?)
+    let response = post_request(url, form).await?;
+    let mut timely_info = response.split('|');
+
+    println!("{:?}", response);
+
+    Ok(TimelyInfo { timely_index: (timely_info.nth(0).unwrap().parse()?), time_left: (timely_info.nth(0).unwrap().parse()?) })
 }
 
 // pub async fn get_daily() -> TimelyLevel {

@@ -79,6 +79,12 @@ pub enum TimelyType {
     Unknown
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Builder, Default)]
+pub struct TimelyInfo {
+    pub timely_index: i32
+,   pub time_left: i32
+}
+
 /// Represents timely level (daily, weekly, etc) specific data,
 /// AKA timely index (eg daily level #) and time left in seconds.
 /// For event levels, `time_left` should be ignored.
