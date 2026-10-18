@@ -207,6 +207,9 @@ pub async fn get_timely_info(timely_type: TimelyType) -> Result<TimelyInfo, Repo
     let form = vec![("secret", SECRET_COMMON), ("type", ltype), ("chk", &chk)];
 
     let response = post_request(url, form).await?;
+
+    if response == "-1" { Err(GDUtilsError::NoTimelyLevelError(timely_type))? };
+
     let timely_info: Vec<&str> = response.split('|').collect();
 
     Ok(TimelyInfo { timely_index: (timely_info.first().unwrap().parse()?), time_left: (timely_info.get(1).unwrap().parse()?) })
