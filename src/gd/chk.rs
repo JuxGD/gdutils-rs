@@ -1,7 +1,6 @@
-use rand::random_range;
-use xor_cryptor_keylen::XORCryptor;
+use rand::{random_range, distr::{Alphanumeric, SampleString}};
+use xor_cryptor::XORCryptor;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE};
-use rust_string_random::{random as random_string, Options, RandWay};
 use eyre::Report;
 
 pub fn generate_reward_chk(player_id: i32, key: &str) -> Result<String, Report> {
@@ -13,19 +12,14 @@ pub fn generate_reward_chk(player_id: i32, key: &str) -> Result<String, Report> 
 
     let buffer = random_number_string.as_bytes().to_vec();
 
+    println!("{buffer:?}");
+
     let encrypted_buffer = XORCryptor::encrypt_v2(key.as_bytes(), buffer)?;
 
     let encrypted_string = String::from_utf8_lossy(&encrypted_buffer);
     let base64_encrypted_string = URL_SAFE.encode(String::from(encrypted_string).as_bytes());
 
-    let rand_str_options = Options {
-        rand: RandWay::NORMAL,
-        numbers: None,
-        letters: None,
-        specials: None,
-    };
-
-    let random_string = random_string(5, rand_str_options).unwrap_or_else(|_| String::from("aaaaa"));
+    let random_string = Alphanumeric.sample_string(&mut rand::rng(), 5);
 
     Ok(format!("{random_string}{base64_encrypted_string}"))
 }

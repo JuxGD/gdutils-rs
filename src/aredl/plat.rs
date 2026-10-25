@@ -1,5 +1,5 @@
 
-use crate::{aredl::utils::{AREDLLevelInfo, URL_AREPL, GDUtilsAREDLError}, gd::{levels::{build_level, level_object_to_hashmap, download_level_by_id}, utils::{Level, get_request}}};
+use crate::{aredl::utils::{AREDLLevelInfo, GDUtilsAREDLError, URL_AREPL}, gd::{levels::{build_level, download_level, level_object_to_hashmap}, utils::{GDQuery, Level, get_request}}};
 use reqwest::header::{ACCEPT, HeaderMap};
 use eyre::Report;
 
@@ -34,5 +34,5 @@ pub async fn get_aredl_gd_info(position: usize, api_key: &str) -> Result<Level, 
         return Err(GDUtilsAREDLError::NumberTooHighError().into())
     }
 
-    build_level(&level_object_to_hashmap(&download_level_by_id(&list[position - 1].level_id.to_string()).await?)?)
+    build_level(&level_object_to_hashmap(&download_level(GDQuery::new(&list[position - 1].level_id.to_string())).await?)?)
 }
