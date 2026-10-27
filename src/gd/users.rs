@@ -97,13 +97,14 @@ pub async fn search_user(query: GDQuery) -> Result<String, Report> {
     let url = format!("{URL_DATABASE}/getGJUsers20.php");
     let form: Vec<(&str, &str)> =  vec![("secret", SECRET_COMMON), ("str", &query.query)];
 
-    post_request(url, form).await.map_err(std::convert::Into::<Report>::into)
+    let search_results = post_request(url, form).await.map_err(std::convert::Into::<Report>::into);
+    search_results.map(|s| String::from(s.split('#').next().unwrap()))
 }
 
 pub async fn get_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, String>, Report> {
-    let user_object = get_user_object(query).await;
+    let user_object = get_user_object(query).await?;
 
-    hashmap_from(&user_object?)
+    hashmap_from(&user_object)
 }
 
 pub async fn search_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, String>, Report> {

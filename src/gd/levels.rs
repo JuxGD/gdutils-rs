@@ -299,9 +299,30 @@ pub async fn search_levels(query: GDQuery) -> Result<LevelSearchResults, Report>
 
     let results: Vec<String> = post_request(url, form).await?.split('#').map(|s| String::from(s)).collect();
 
-    let levels = results.get(0).unwrap().split('|').map(|s| hashmap_from(s)).filter_map(Result::ok).map(|h| build_level(&h)).filter_map(Result::ok).collect();
-    let creators = results.get(1).unwrap().split('|').map(|s| build_creator_info(&s.split(':').map(|s| s.into()).collect())).filter_map(Result::ok).collect();
-    let songs = results.get(2).unwrap().split("~:~").map(|s| song_hashmap_from(s)).filter_map(Result::ok).map(|h| build_song(&h)).filter_map(Result::ok).collect();
+    let levels: Vec<Level> = results.get(0).unwrap().split('|').map(|s| hashmap_from(s)).filter_map(Result::ok).map(|h| build_level(&h)).filter_map(Result::ok).collect();
+
+    let creators_buffer: Vec<CreatorInfo> = results.get(1).unwrap().split('|').map(|s| build_creator_info(&s.split(':').map(|s| s.into()).collect())).filter_map(Result::ok).collect();
+    let mut creators: Vec<CreatorInfo> = vec![];
+
+    let songs_buffer: Vec<Song> = results.get(2).unwrap().split("~:~").map(|s| song_hashmap_from(s)).filter_map(Result::ok).map(|h| build_song(&h)).filter_map(Result::ok).collect();
+    let mut songs: Vec<Song> = vec![];
+
+    for level in &levels {
+        for creator in &creators_buffer {
+            if level.player_id == creator.user_id {
+                creators.push(creator.to_owned());
+                break;
+            }
+        }
+
+        for song in &songs_buffer {
+            if song.id == level.custom_song_id {
+                songs.push(song.to_owned());
+                break;
+            }
+        }
+    }
+
     let page_info = build_page_info(results.get(3).unwrap().split(':').map(String::from).collect())?;
 
     LevelSearchResultsBuilder::default()

@@ -1,4 +1,4 @@
-use gdutils::{aredl::{classic::get_aredl_level_info_by_position, users::get_aredl_user_info_by_name}, gd::{levels::{download_and_build_level, get_timely_info, search_and_build_level}, users::get_user, utils::{GDQuery, GDUtilsError, TimelyType}}};
+use gdutils::{aredl::{classic::get_aredl_level_info_by_position, users::get_aredl_user_info_by_name}, gd::{levels::{download_and_build_level, get_timely_info, search_and_build_level, search_levels}, users::get_user, utils::{GDQuery, GDUtilsError, TimelyType}}};
 use dotenvy::dotenv;
 
 #[tokio::test]
@@ -28,7 +28,10 @@ async fn main() -> Result<(), eyre::Report> {
 
     search_and_build_level(GDQuery::name("stereo madness copy"), 2).await?;
 
-    get_user(GDQuery::name("idoweirdstuff")).await?;
+    let retray_search = search_levels(GDQuery::name("")).await?;
+    let user_id = retray_search.creators.first().unwrap().user_id;
+
+    println!("{:#?}", retray_search.songs);
 
     get_aredl_user_info_by_name("JuxGD").await?;
 
