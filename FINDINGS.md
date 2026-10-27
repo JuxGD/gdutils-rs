@@ -8,4 +8,8 @@
 - Key 16 (`dislikes`) seems to always have value 0
 - The decryption/decoding process of the value of key 27 (`password`) is documented, however, this is not well explained in the documentation page for the Server Level Resource.
 - Keys 36 (`extraString` / `extra_string`), 62 (`exactUploadTime` / `exact_upload_time`), 63 (`exactUpdateTime` / `exact_update_time`) are NOT returned by the `getGJLevels21.php` endpoint
-- Key 41 (`dailyNumber` / `daily_number`) is not returned by `downloadGJLevel22.php` unless `levelID` parameter is "-1", "-2" or "-3"
+- Key 41 (`dailyNumber` / `daily_number`) is not returned by `downloadGJLevel22.php` unless `levelID` parameter is "-1", "-2" or "-3". This is documented elsewhere in the docs, but not properly in the documentation page for the Server Level Resource.
+
+## Song Object / Client & Server Song Resource
+
+- Keys 9 and 11-15 are NOT returned by the `getGJLevels21.php` endpoint.

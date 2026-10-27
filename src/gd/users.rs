@@ -11,7 +11,7 @@ pub fn build_user<S: std::hash::BuildHasher>(user_hashmap: &HashMap<String, Stri
         .stars(user_hashmap.get("3").unwrap().parse()?)
         .demon_count(user_hashmap.get("4").unwrap().parse()?)
         .ranking(user_hashmap.get("6").and_then(|s| s.parse().ok()))
-        .account_highlight(user_hashmap.get("7").map(|s| s.into()))
+        .account_highlight(user_hashmap.get("7").map(std::convert::Into::into))
         .creator_points(user_hashmap.get("8").unwrap().parse()?)
         .icon_id(user_hashmap.get("9").and_then(|s| s.parse().ok()))
         .color(user_hashmap.get("10").unwrap().parse()?)
@@ -97,9 +97,7 @@ pub async fn search_user(query: GDQuery) -> Result<String, Report> {
     let url = format!("{URL_DATABASE}/getGJUsers20.php");
     let form: Vec<(&str, &str)> =  vec![("secret", SECRET_COMMON), ("str", &query.query)];
 
-    let response = post_request(url, form).await.map_err(std::convert::Into::<Report>::into)?.split('#').map(|s| Ok(String::from(s))).collect::<Result<Vec<String>, Report>>()?;
-    let final_thing = response.first().ok_or_else(|| GDUtilsError::GenericError(String::from("User search results are empty or invalid!"))).map_err(|e| e.into());
-    final_thing.cloned()
+    post_request(url, form).await.map_err(std::convert::Into::<Report>::into)
 }
 
 pub async fn get_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, String>, Report> {
@@ -109,9 +107,9 @@ pub async fn get_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, S
 }
 
 pub async fn search_user_object_hashmap(query: GDQuery) -> Result<HashMap<String, String>, Report> {
-    let user_object = search_user(query).await;
+    let user_object = search_user(query).await?;
 
-    hashmap_from(&user_object?)
+    hashmap_from(&user_object)
 }
 
 pub async fn get_user_info(query: GDQuery) -> Result<User, Report> {

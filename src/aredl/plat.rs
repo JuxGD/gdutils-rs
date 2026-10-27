@@ -1,5 +1,4 @@
-
-use crate::{aredl::utils::{AREDLLevelInfo, GDUtilsAREDLError, URL_AREPL}, gd::{levels::{build_level, download_level, level_object_to_hashmap}, utils::{GDQuery, Level, get_request}}};
+use crate::{aredl::utils::{AREDLLevelInfo, GDUtilsAREDLError, URL_AREPL}, gd::{levels::{build_level, download_level}, utils::{GDQuery, GDUtilsError, Level, get_request, hashmap_from}}};
 use reqwest::header::{ACCEPT, HeaderMap};
 use eyre::Report;
 
@@ -22,7 +21,7 @@ pub async fn get_aredl_level_info_by_position(position: usize, api_key: &str) ->
         return Err(GDUtilsAREDLError::NumberTooHighError().into())
     }
 
-    let level = &list[position - 1];
+    let level = list.get(position - 1).ok_or(GDUtilsError::GenericError(String::from("Something went wrong getting the requested AREDL position")))?;
 
     Ok(level.to_owned())
 }
@@ -34,5 +33,5 @@ pub async fn get_aredl_gd_info(position: usize, api_key: &str) -> Result<Level, 
         return Err(GDUtilsAREDLError::NumberTooHighError().into())
     }
 
-    build_level(&level_object_to_hashmap(&download_level(GDQuery::new(&list[position - 1].level_id.to_string())).await?)?)
+    build_level(&hashmap_from(&String::from(download_level(GDQuery::new(&list[position - 1].level_id.to_string())).await?))?)
 }

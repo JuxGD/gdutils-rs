@@ -2,12 +2,14 @@ use derive_builder::Builder;
 use reqwest::header::HeaderMap;
 use serde::{Serialize, Deserialize};
 use core::fmt;
+use std::collections::HashMap;
 use eyre::Report;
+pub use colonparse::hashmap_from;
 
 use crate::gd::levels::{calculate_difficulty, calculate_quality};
 
 /// URL for the Geometry Dash servers.
-pub const URL: &str = "http://www.boomlings.com"; // because of Rust limitations, both URL and URL_DATABASE need to be changed
+pub const URL: &str = "http://www.boomlings.com"; // because of Rust limitations, both `URL` and `URL_DATABASE` need to be changed
 
 /// URL for the Geometry Dash database, which is what most all API endpoints use.
 pub const URL_DATABASE: &str = "https://www.boomlings.com/database";
@@ -15,10 +17,10 @@ pub const URL_DATABASE: &str = "https://www.boomlings.com/database";
 /// This is a common string required in most request forms as the value for the `secret` parameter.
 pub const SECRET_COMMON: &str = "Wmfd2893gb7";
 
-/// Represents the Level object returned by some API endpoints. 
+/// Represents the level object returned by some API endpoints. 
 /// 
 /// See <https://boomlings.dev/resources/server/level>
-#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default, PartialEq)]
 pub struct Level {
     /// The ID of the level. Level object key 1.
     pub level_id: i32,
@@ -49,7 +51,7 @@ pub struct Level {
     /// 
     /// Divides `difficulty_numerator` to determine the level difficulty. 0 if N/A, 10 if a difficulty is assigned.
     /// 
-    /// Both the `calculate_difficulty()` function and the `Level` method of the same name use this value for difficulty calculation.
+    /// Both the [`calculate_difficulty()`] function and the [`Level`] method of the same name use this value for difficulty calculation.
     pub difficulty_denominator: u8,
 
     /// Difficulty numerator of the level. Level object key 9.
@@ -69,7 +71,7 @@ pub struct Level {
     /// - 40 = Insane demon
     /// - 50 = Extreme demon
     /// 
-    /// Both the `calculate_difficulty()` function and the `Level` method of the same name use this value for difficulty calculation.
+    /// Both the [`calculate_difficulty()`] function and the [`Level`] method of the same name use this value for difficulty calculation.
     pub difficulty_numerator: i8,
 
     /// Amount of downloads of a level. Level object key 10.
@@ -96,7 +98,7 @@ pub struct Level {
 
     /// How long the level is. Level object key 15.
     /// 
-    /// Level object key 15 will have a value from 0 to 5. `gdutils` maps the value to a variant of the `gdutils::gd::utils::Length` enum.
+    /// Level object key 15 will have a value from 0 to 5. `gdutils` maps the value to a variant of the [`Length`] enum.
     /// 
     /// 0 => Tiny,
     /// 
@@ -116,9 +118,9 @@ pub struct Level {
     /// Its value is always 0.
     pub dislikes: i32,
 
-    /// Whether the level is auto or not. Level object key 25.
+    /// Whether the level is a demon or not. Level object key 25.
     /// 
-    /// Both the `calculate_difficulty()` function and the `Level` method of the same name use this value for difficulty calculation.
+    /// Both the [`calculate_difficulty()`] function and the [`Level`] method of the same name use this value for difficulty calculation.
     pub demon: bool,
 
     /// Amount of stars given by beating the level. Level object key 18.
@@ -132,7 +134,7 @@ pub struct Level {
 
     /// Amount of votes for a star rating in the level. Level object key 20. 
     /// 
-    /// The keys for the `Level` fields `star_ratings`, `star_ratings_sum`, `min_star_ratings`, `max_star_ratings`, `demon_votes`,
+    /// The keys for the [`Level`] fields `star_ratings`, `star_ratings_sum`, `min_star_ratings`, `max_star_ratings`, `demon_votes`,
     /// `record_string`, `rate_stars`, `rate_feature` and `rate_user` were only returned by the official GD servers when "extras" was enabled.
     /// Since 2022, they are only returned if RobTop is the one requesting the info from the servers.
     /// 
@@ -141,7 +143,7 @@ pub struct Level {
 
     /// Sum of the stars in the star rating votes in the level. Level object key 21.
     /// 
-    /// The keys for the `Level` fields `star_ratings`, `star_ratings_sum`, `min_star_ratings`, `max_star_ratings`, `demon_votes`,
+    /// The keys for the [`Level`] fields `star_ratings`, `star_ratings_sum`, `min_star_ratings`, `max_star_ratings`, `demon_votes`,
     /// `record_string`, `rate_stars`, `rate_feature` and `rate_user` were only returned by the official GD servers when "extras" was enabled.
     /// Since 2022, they are only returned if RobTop is the one requesting the info from the servers.
     /// 
@@ -294,7 +296,7 @@ pub struct Level {
     pub settings_string: Option<String>,
     pub song_ids: Option<Vec<i32>>,
     pub sfx_ids: Option<Vec<i32>>,
-    pub song_size: Option<i32>,
+    pub song_size: Option<f32>,
     pub verification_time: Option<i32>,
     pub exact_upload_time: Option<i32>,
     pub exact_update_time: Option<i32>
@@ -489,9 +491,9 @@ impl GDQuery {
 
     /// Creates a `GDQuery` of `query_type` `GDQueryType::ID` for you based on the string given to it, returns said `GDQuery`.
     #[must_use]
-    pub fn id(query: &str) -> Self {
+    pub fn id(query: &i32) -> Self {
         Self {
-            query: String::from(query),
+            query: query.to_string(),
             query_type: GDQueryType::ID
         }
     }
@@ -783,9 +785,12 @@ pub enum GDUtilsError {
     UnknownGDQueryTypeError,
     UnknownGroupStateError,
     UnknownModeratorTypeError,
-    
+    UnknownNongTypeError,
+    UnknownNewSongTypeError,
+    EvenSeparatorAmountError(String),
+
     /// Used when Jux is too lazy to just add a new enum variant
-    GenericError(String)
+    GenericError(String),
 }
 
 impl fmt::Display for GDUtilsError {
@@ -812,7 +817,10 @@ impl fmt::Display for GDUtilsError {
             Self::UnknownDifficultyError => write!(f, "Unknown level difficulty!"),
             Self::UnknownGroupStateError => write!(f, "Unknown group state!"),
             Self::UnknownModeratorTypeError => write!(f, "Unknown moderator type!"),
-            Self::GenericError(e) => write!(f, "Error: {e}")
+            Self::UnknownNongTypeError => write!(f, "Unknown NONG type!"),
+            Self::UnknownNewSongTypeError => write!(f, "Unknown new song type!"),
+            Self::EvenSeparatorAmountError(e) => write!(f, "Provided string has even amount of `{e}`!"),
+            Self::GenericError(e) => write!(f, "Error: {e}"),
         }
     }
 }
@@ -823,4 +831,34 @@ impl From<GDUtilsError> for std::fmt::Error {
     fn from(_: GDUtilsError) -> Self {
         Self
     }
+}
+
+pub fn song_tuples_vector_from(string: &str) -> Result<Vec<(String, String)>, Report> {
+    let mut pairs: Vec<(String, String)> = vec![];
+    let split_string = string.split("~|~").collect::<Vec<&str>>();
+
+    if split_string.len() % 2 != 0 {
+        return Err(GDUtilsError::EvenSeparatorAmountError(String::from("~|~")).into());
+    }
+
+    for e in (0..split_string.len()).step_by(2) {
+        let pair = (String::from(split_string[e]), String::from(split_string[e + 1]));
+        pairs.push(pair);
+    };
+
+    Ok(pairs)
+}
+
+/// Uses `tuples_vector_from()`` to make a hashmap. It's a direct conversion.
+/// 
+/// This shouldn't error out or panic unless a bad string is fed into it.
+pub fn song_hashmap_from(string: &str) -> Result<HashMap<String, String>, Report> {
+    let mut hashmap = HashMap::new();
+    let tuple = song_tuples_vector_from(string)?;
+
+    for (key, value) in tuple {
+        hashmap.insert(key, value);
+    };
+
+    Ok(hashmap)
 }

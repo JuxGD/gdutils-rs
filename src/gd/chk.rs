@@ -12,8 +12,6 @@ pub fn generate_reward_chk(player_id: i32, key: &str) -> Result<String, Report> 
 
     let buffer = random_number_string.as_bytes().to_vec();
 
-    println!("{buffer:?}");
-
     let encrypted_buffer = XORCryptor::encrypt_v2(key.as_bytes(), buffer)?;
 
     let encrypted_string = String::from_utf8_lossy(&encrypted_buffer);

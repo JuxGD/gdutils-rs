@@ -1,20 +1,99 @@
 // use base64::{Engine as _, engine};
-use colonparse::hashmap_from;
-use eyre::{Ok, Report};
+use crate::gd::utils::{hashmap_from, song_hashmap_from};
+use derive_builder::Builder;
+use eyre::Report;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::slice::GetDisjointMutError::IndexOutOfBounds;
 // use xor_cryptor_keylen::XORCryptor;
 
 use crate::gd::utils::{DemonDifficulty, Difficulty, Epic, GDQuery, GDQueryType, GDUtilsError, Length, Level, LevelBuilder, Quality, SECRET_COMMON, TimelyInfo, TimelyLevel, TimelyType, URL_DATABASE, post_request};
 use crate::gd::chk;
 
-/// Performs level difficulty calculation. Doesn't necessarily require a `Level`, just the parameters.
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default, PartialEq)]
+pub struct LevelSearchResults {
+    pub levels: Vec<Level>,
+    pub creators: Vec<CreatorInfo>,
+    pub songs: Vec<Song>,
+    pub page_info: PageInfo,
+    pub hash: String
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default, PartialEq, Eq)]
+pub struct CreatorInfo {
+    pub user_id: i32,
+    pub username: String,
+    pub account_id: i32
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default, PartialEq, Eq)]
+pub struct PageInfo {
+    pub total: i32,
+    pub offset: i32,
+    pub amount: i32
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Builder, Default, PartialEq)]
+pub struct Song {
+    pub id: i32,
+    pub name: String,
+    pub artist_id: i32,
+    pub artist_name: String,
+    pub size: f32,
+    pub video_id: String,
+    pub youtube_url: String,
+    pub is_verified: bool,
+    pub song_priority: Option<i32>,
+    pub link: String,
+    pub nong_enum: Option<NongType>,
+    pub extra_artist_ids: Option<Vec<i32>>,
+    pub new: Option<bool>,
+    pub new_type: Option<NewSongType>,
+    pub extra_artist_names: Option<Vec<(i32, String)>>,
+    pub download_soundtrack_override: String
+}
+
+pub struct Artist {
+    pub id: i32,
+    pub name: String
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+pub enum NongType {
+    #[default] None, NCS, Chompo
+}
+
+impl NongType {
+    pub fn new(value: usize) -> Result<Self, Report> {
+        Ok(match value {
+            0 => Self::None,
+            1 => Self::NCS,
+            2 => Self::Chompo,
+            _ => return Err(GDUtilsError::UnknownNongTypeError.into())
+        })
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+pub enum NewSongType {
+    #[default] Yellow, Blue
+}
+
+impl NewSongType {
+    pub fn new(value: usize) -> Result<Self, Report> {
+        Ok(match value {
+            0 => Self::Yellow,
+            1 => Self::Blue,
+            _ => return Err(GDUtilsError::UnknownNewSongTypeError.into())
+        })
+    }
+}
+/// Performs level difficulty calculation. Doesn't necessarily require a [`Level`], just the parameters.
 /// 
-/// The `Level` struct has a function that uses its own parameters. If you have a variable of type `Level`, that'll be shorter and cleaner code.
+/// The [`Level`] struct has a function that uses its own parameters. If you have a variable of type [`Level`], that'll be shorter and cleaner code.
 /// 
 /// # Errors
 /// 
-/// Will error out if `difficulty_numerator` or `difficulty_denominator` are any number past 5, if the former is less than 0, or if the latter is less than 1.
+/// Will error out if [`difficulty_numerator`] or [`difficulty_denominator`] are any number past 5, if the former is less than 0, or if the latter is less than 1.
 pub fn calculate_difficulty(difficulty_numerator: i8, difficulty_denominator: u8, auto: bool, demon: bool) -> Result<Difficulty, Report> {
     let difficulty = if auto {
         Difficulty::Auto
@@ -97,7 +176,7 @@ pub fn calculate_quality(feature_score: i32, epic: Epic) -> Quality {
 /// 
 /// Panics for most keys, if they aren't present. Testing has been done and it's not supposed to panic, please report any panics.
 pub fn build_level<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, String, S>) -> Result<Level, Report> {
-    Ok(LevelBuilder::default()
+    LevelBuilder::default()
         .level_id(level_hashmap.get("1").unwrap().parse()?)
         .level_name(level_hashmap.get("2").unwrap().into())
         .description(level_hashmap.get("3").unwrap().into())
@@ -151,38 +230,87 @@ pub fn build_level<S: std::hash::BuildHasher>(level_hashmap: &HashMap<String, St
         .verification_time(level_hashmap.get("57").and_then(|s| s.parse().ok()))
         .exact_upload_time(level_hashmap.get("62").and_then(|s| s.parse().ok()))
         .exact_update_time(level_hashmap.get("63").and_then(|s| s.parse().ok()))
-        .build()?)
+        .build().map_err(|e| e.into())
 }
 
+pub fn build_creator_info(creator: &Vec<String>) -> Result<CreatorInfo, Report> {
+    CreatorInfoBuilder::default()
+        .user_id(creator.get(0).unwrap().parse()?)
+        .username(creator.get(1).unwrap().into())
+        .account_id(creator.get(2).unwrap().parse()?)
+        .build().map_err(|e| e.into())
+}
+
+pub fn build_song(song_hashmap: &HashMap<String, String>) -> Result<Song, Report> {
+    let extra_artist_names_vec: Option<Vec<&str>> = if song_hashmap.get("14").is_some() {
+        Some(song_hashmap.get("14").unwrap().split(',').collect())
+    } else {
+        None
+    };
+
+    let mut extra_artist_names: Option<Vec<(i32, String)>> = Some(vec![]);
+
+    match extra_artist_names_vec {
+        Some(v) => for i in (0..v.len()).step_by(2) {
+            extra_artist_names.as_mut().unwrap().push((v.get(i).unwrap().parse()?, String::from(*v.get(i + 1).unwrap())));
+        },
+        None => extra_artist_names = None
+    };
+
+    SongBuilder::default()
+        .id(song_hashmap.get("1").unwrap().parse()?)
+        .name(song_hashmap.get("2").unwrap().into())
+        .artist_id(song_hashmap.get("3").unwrap().parse()?)
+        .artist_name(song_hashmap.get("4").unwrap().into())
+        .size(song_hashmap.get("5").unwrap().parse()?)
+        .video_id(song_hashmap.get("6").unwrap().into())
+        .youtube_url(song_hashmap.get("7").unwrap().into())
+        .is_verified(song_hashmap.get("8").is_some_and(String::is_empty))
+        .song_priority(song_hashmap.get("9").and_then(|s| Some(s.parse().unwrap())))
+        .link(song_hashmap.get("10").unwrap().into())
+        .nong_enum(song_hashmap.get("11").and_then(|s| Some(NongType::new(s.parse().unwrap()).unwrap())))
+        .extra_artist_ids(song_hashmap.get("12").and_then(|s| Some(s.split('.').map(|s| s.parse().unwrap()).collect())))
+        .new(if song_hashmap.get("13").is_some() { Some(song_hashmap.get("13").is_some_and(String::is_empty)) } else { None })
+        .new_type(song_hashmap.get("14").and_then(|s| Some(NewSongType::new(s.parse().unwrap()).unwrap())))
+        .extra_artist_names(extra_artist_names)
+        .download_soundtrack_override(song_hashmap.get("16").unwrap().into())
+        .build().map_err(|e| e.into())
+}
+
+pub fn build_page_info(page_info: Vec<String>) -> Result<PageInfo, Report> {
+    PageInfoBuilder::default()
+        .total(page_info.get(0).unwrap().parse()?)
+        .offset(page_info.get(1).unwrap().parse()?)
+        .amount(page_info.get(2).unwrap().parse()?)
+        .build().map_err(|e| e.into())
+}
 /// Searches levels in the GD servers by ID or name. When searching by ID, it should always return just one level.
+/// 
+/// This doesn't return just the level results list, but also lists of level creators,  in the same order
 /// 
 /// # Errors
 /// 
 /// Shouldn't error out, but it will if there's no data in the search results (i think).
 /// 
 /// Will also propagate errors from the functions it depends on.
-pub async fn search_levels(query: GDQuery) -> Result<String, Report> {
-        let url = format!("{URL_DATABASE}/getGJLevels21.php");
-        let form = vec![("secret", SECRET_COMMON), ("str", &query.query), ("type", "0")];
+pub async fn search_levels(query: GDQuery) -> Result<LevelSearchResults, Report> {
+    let url = format!("{URL_DATABASE}/getGJLevels21.php");
+    let form = vec![("secret", SECRET_COMMON), ("str", &query.query), ("type", "0")];
 
-        post_request(url, form).await?.split('#').next().map(|s| String::from(s)).ok_or_else(|| GDUtilsError::GenericError(String::from("Error retrieving level search data")).into())
-}
+    let results: Vec<String> = post_request(url, form).await?.split('#').map(|s| String::from(s)).collect();
 
-/// `search_levels`, but it returns the results in a vector. Also gets rid of the page info.
-/// 
-/// # Errors
-/// 
-/// Will propagate errors from the functions it depends on.
-pub async fn search_levels_vector(query: GDQuery) -> Result<Vec<String>, Report> {
-    let result = search_levels(query).await?;
-    let levels = result.split('|').collect::<Vec<&str>>();
-    let mut levels_vector: Vec<_> = vec![];
-    
-    for level in levels {
-        levels_vector.push(String::from(level));     
-    };
+    let levels = results.get(0).unwrap().split('|').map(|s| hashmap_from(s)).filter_map(Result::ok).map(|h| build_level(&h)).filter_map(Result::ok).collect();
+    let creators = results.get(1).unwrap().split('|').map(|s| build_creator_info(&s.split(':').map(|s| s.into()).collect())).filter_map(Result::ok).collect();
+    let songs = results.get(2).unwrap().split("~:~").map(|s| song_hashmap_from(s)).filter_map(Result::ok).map(|h| build_song(&h)).filter_map(Result::ok).collect();
+    let page_info = build_page_info(results.get(3).unwrap().split(':').map(String::from).collect())?;
 
-    Ok(levels_vector)
+    LevelSearchResultsBuilder::default()
+        .levels(levels)
+        .creators(creators)
+        .songs(songs)
+        .page_info(page_info)
+        .hash(results.get(4).unwrap().into())
+        .build().map_err(|e| e.into())
 }
 
 /// Gets the full level object as a string. If `query`'s `query_type` is `GDQueryType::Name`, searches first to get the level ID, then downloads it using that.
@@ -200,8 +328,9 @@ pub async fn download_level(query: GDQuery) -> Result<String, Report> {
     
     let response = match query.query_type {
         GDQueryType::Name => {
-            let level = hashmap_from(search_levels_vector(query).await?.first().ok_or_else(|| GDUtilsError::GenericError(String::from("Error getting first level in level search data")))?)?;
-            let id = level.get("1").ok_or_else(|| GDUtilsError::GenericError("Retrieved level has no ID; can't download level!".into()))?;
+            let results = search_levels(query).await?;
+            let level = results.levels.first().ok_or_else(|| GDUtilsError::GenericError(String::from("Error getting first level in level search data")))?;
+            let id = &level.level_id.to_string();
 
             let form = vec![("secret", SECRET_COMMON), ("levelID", id)];
 
@@ -227,7 +356,7 @@ pub async fn download_level(query: GDQuery) -> Result<String, Report> {
 /// but it may error as well, making this return error.
 pub async fn download_and_build_level(query: GDQuery) -> Result<Level, Report> {
     let level_object = download_level(query).await?;
-    let level_hashmap = level_object_to_hashmap(&level_object)?;
+    let level_hashmap = hashmap_from(&level_object)?;
     build_level(&level_hashmap)
 }
 
@@ -240,19 +369,9 @@ pub async fn download_and_build_level(query: GDQuery) -> Result<Level, Report> {
 /// The `build_level` function isn't being unwrapped since it returns the same type as this function,
 /// but it may error as well, making this return error.
 pub async fn search_and_build_level(query: GDQuery, index: usize) -> Result<Level, Report> {
-    let search_results_vector = search_levels_vector(query).await?;
-    let level_object = search_results_vector.get(index).ok_or_else(|| IndexOutOfBounds)?;
-    let level_hashmap = level_object_to_hashmap(level_object)?;
-    build_level(&level_hashmap)
-}
+    let results = search_levels(query).await?;
 
-/// Turns a given level object string into a hashmap.
-/// 
-/// # Errors
-/// 
-/// Propagates errors from `colonparse::hashmap_from`.
-pub fn level_object_to_hashmap(level_object: &str) -> Result<HashMap<String, String>, Report> {
-    hashmap_from(level_object)
+    results.levels.get(index).ok_or(GDUtilsError::GenericError(String::from("Error getting level at requested index!"))).map(|l| l.to_owned()).map_err(|e| e.into())
 }
 
 /// Gets the timely level along with the info for it.
@@ -269,7 +388,7 @@ pub async fn get_timely_level(timely_type: TimelyType) -> Result<TimelyLevel, Re
     
     let timely_info = get_timely_info(timely_type).await?;
 
-    let level_hashmap = level_object_to_hashmap(&download_level(GDQuery { query: id.into(), query_type: GDQueryType::ID }).await?)?;
+    let level_hashmap = hashmap_from(&download_level(GDQuery { query: id.into(), query_type: GDQueryType::ID }).await?)?;
 
     Ok(TimelyLevel { level: build_level(&level_hashmap)?, info: timely_info})
 }
@@ -298,7 +417,10 @@ pub async fn get_timely_info(timely_type: TimelyType) -> Result<TimelyInfo, Repo
 
     let timely_info: Vec<&str> = response.split('|').collect();
 
-    Ok(TimelyInfo { timely_index: (timely_info.first().unwrap().parse()?), time_left: (timely_info.get(1).unwrap().parse()?) })
+    Ok(TimelyInfo {
+        timely_index: (timely_info.first().ok_or_else(|| GDUtilsError::GenericError(String::from("Error unwrapping the first element of the timely info!")))?.parse()?),
+        time_left: (timely_info.get(1).ok_or_else(|| GDUtilsError::GenericError(String::from("Error unwrapping the second element of the timely info!")))?.parse()?)
+    })
 }
 
 // pub async fn get_common_level_info(query: &str) -> CommonLevelInfo {
